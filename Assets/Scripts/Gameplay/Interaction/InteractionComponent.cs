@@ -53,21 +53,19 @@ namespace Gameplay.Interaction
 
         private void TryFindInteractable()
         {
-            _lastInteractable = null;
-
             var ray = new Ray(_startPoint.position, _startPoint.forward);
-            var size = Physics.RaycastNonAlloc(ray, _hits, Mathf.Infinity, _interactLayer);
+            IInteractable currentInteractable = null;
 
-            for (var i = 0; i < size; i++)
+            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, _interactLayer))
             {
-                if (!_hits[i].collider)
-                    continue;
+                hit.collider.TryGetComponent(out currentInteractable);
+            }
 
-                if (!_hits[i].collider.TryGetComponent(out IInteractable interactable))
-                    continue;
-
-                _lastInteractable = interactable;
-                break;
+            if (_lastInteractable != currentInteractable)
+            {
+                _lastInteractable?.Highlight(false);
+                _lastInteractable = currentInteractable;
+                _lastInteractable?.Highlight(true);
             }
         }
     }
