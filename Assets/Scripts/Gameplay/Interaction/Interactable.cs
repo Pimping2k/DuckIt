@@ -8,7 +8,7 @@ namespace Gameplay.Interaction
         
         public void Interact()
         {
-            
+            OnInteracted();
         }
 
         public void Highlight(bool isHighlighted)
@@ -17,6 +17,7 @@ namespace Gameplay.Interaction
             OnHighlighted(isHighlighted);
         }
 
-        protected virtual void OnHighlighted(bool isHighlighted) { }
+        protected virtual void OnInteracted(){}
+        protected virtual void OnHighlighted(bool isHighlighted) {}
     }
 }
