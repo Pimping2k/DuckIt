@@ -1,6 +1,7 @@
 ﻿using System;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
+using Restorable;
 using Services;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace Gameplay.Tools
     public abstract class BaseTool : MonoBehaviour
     {
         [SerializeField] private ToolType _type;
+        [SerializeField] private RestoreTool _restoreToolType;
         
         protected PlayerToolController PlayerToolController;
         protected IInputService InputService;
