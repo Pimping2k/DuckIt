@@ -15,7 +15,7 @@ Preset:
   - target: {fileID: 0}
     propertyPath: m_Shader
     value: 
-    objectReference: {fileID: 4800000, guid: bee44b4a58655ee4cbff107302a3e131, type: 3}
+    objectReference: {fileID: 4800000, guid: f7e38193b7f064d7380403618fd8b69e, type: 3}
   - target: {fileID: 0}
     propertyPath: m_Parent
     value: 
@@ -26,7 +26,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_ValidKeywords.Array.size
-    value: 9
+    value: 6
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: 'm_ValidKeywords.Array.data[0]'
@@ -38,7 +38,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: 'm_ValidKeywords.Array.data[2]'
-    value: _BASEMAP_PREMULTIPLY
+    value: DR_SPECULAR_ON
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: 'm_ValidKeywords.Array.data[3]'
@@ -46,22 +46,10 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: 'm_ValidKeywords.Array.data[4]'
-    value: _DETAILMAPBLENDINGMODE_MULTIPLY
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: 'm_ValidKeywords.Array.data[5]'
-    value: _GRADIENTSPACE_WORLD
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: 'm_ValidKeywords.Array.data[6]'
-    value: _OUTLINESPACE_SCREEN
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: 'm_ValidKeywords.Array.data[7]'
     value: _TEXTUREBLENDINGMODE_MULTIPLY
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: 'm_ValidKeywords.Array.data[8]'
+    propertyPath: 'm_ValidKeywords.Array.data[5]'
     value: _UNITYSHADOWMODE_MULTIPLY
     objectReference: {fileID: 0}
   - target: {fileID: 0}
@@ -98,7 +86,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_LockedProperties
-    value: 
+    value: _GradientCenterY
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.size
@@ -111,7 +99,7 @@ Preset:
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Texture
     value: 
-    objectReference: {fileID: 2800000, guid: ba2aa30fca27f8841aee49cd8fa712d8, type: 3}
+    objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Scale.x
     value: 1
@@ -138,11 +126,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Offset.x
@@ -162,11 +150,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Offset.x
@@ -186,11 +174,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Offset.x
@@ -210,11 +198,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Offset.x
@@ -234,11 +222,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Offset.x
@@ -258,11 +246,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Offset.x
@@ -282,11 +270,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Offset.x
@@ -306,11 +294,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Offset.x
@@ -330,11 +318,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Offset.x
@@ -354,11 +342,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Offset.x
@@ -378,11 +366,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Offset.x
@@ -402,11 +390,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Offset.x
@@ -426,11 +414,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Offset.x
@@ -450,11 +438,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Offset.x
@@ -474,11 +462,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Offset.x
@@ -498,11 +486,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Scale.x
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Scale.y
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Offset.x
@@ -702,7 +690,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[22].second
-    value: 0.55
+    value: 0.749
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[23].first
@@ -726,7 +714,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[25].second
-    value: 0
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[26].first
@@ -734,7 +722,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[26].second
-    value: 0.1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[27].first
@@ -782,7 +770,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[32].second
-    value: 0
+    value: 102
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[33].first
@@ -790,7 +778,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[33].second
-    value: 0
+    value: 1.48
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[34].first
@@ -798,7 +786,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[34].second
-    value: 0
+    value: -1.73
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[35].first
@@ -814,7 +802,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[36].second
-    value: 10
+    value: 85.1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[37].first
@@ -886,7 +874,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[45].second
-    value: 0
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[46].first
@@ -910,7 +898,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[48].second
-    value: 1
+    value: 2
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[49].first
@@ -1006,7 +994,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[60].second
-    value: 0
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Floats.Array.data[61].first
@@ -1150,19 +1138,19 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[1].second.r
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[1].second.g
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[1].second.b
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[1].second.a
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[2].first
@@ -1170,15 +1158,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[2].second.r
-    value: 0.7882353
+    value: 0.8490566
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[2].second.g
-    value: 0.5882353
+    value: 0.5908336
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[2].second.b
-    value: 0.5490196
+    value: 0.16420433
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[2].second.a
@@ -1190,15 +1178,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[3].second.r
-    value: 0.7882353
+    value: 0.8509804
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[3].second.g
-    value: 0.5882353
+    value: 0.5921569
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[3].second.b
-    value: 0.5490196
+    value: 0.16470589
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[3].second.a
@@ -1214,15 +1202,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[4].second.g
-    value: 0.4392157
+    value: 0.43921566
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[4].second.b
-    value: 0.4156863
+    value: 0.41568628
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[4].second.a
-    value: 0.85056
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[5].first
@@ -1230,15 +1218,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[5].second.r
-    value: 0.7882353
+    value: 0.8509804
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[5].second.g
-    value: 0.5882353
+    value: 0.5921569
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[5].second.b
-    value: 0.5490196
+    value: 0.16470589
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[5].second.a
@@ -1250,15 +1238,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[6].second.r
-    value: 0.85023
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[6].second.g
-    value: 0.85034
+    value: 0.7750001
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[6].second.b
-    value: 0.85045
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[6].second.a
@@ -1310,15 +1298,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[9].second.r
-    value: 0.8509804
+    value: 0.8562049
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[9].second.g
-    value: 0.6
+    value: 0.7738964
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[9].second.b
-    value: 0.3803922
+    value: 0.8773585
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[9].second.a
@@ -1330,19 +1318,19 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[10].second.r
-    value: 0.85023
+    value: 2.828427
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[10].second.g
-    value: 0.85034
+    value: 2.828427
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[10].second.b
-    value: 0.85045
+    value: 2.828427
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[10].second.a
-    value: 0.85056
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[11].first
@@ -1370,15 +1358,15 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[12].second.r
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[12].second.g
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[12].second.b
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_SavedProperties.m_Colors.Array.data[12].second.a
@@ -1432,193 +1420,7 @@ Preset:
     propertyPath: m_AllowLocking
     value: 1
     objectReference: {fileID: 0}
-  m_ExcludedProperties:
-  - m_SavedProperties.m_TexEnvs
-  - m_SavedProperties.m_TexEnvs.Array.size
-  - 'm_SavedProperties.m_TexEnvs.Array.data[0]'
-  - m_SavedProperties.m_TexEnvs.Array.data[0].first
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[0].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[1]'
-  - m_SavedProperties.m_TexEnvs.Array.data[1].first
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[1].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[2]'
-  - m_SavedProperties.m_TexEnvs.Array.data[2].first
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[2].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[3]'
-  - m_SavedProperties.m_TexEnvs.Array.data[3].first
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[3].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[4]'
-  - m_SavedProperties.m_TexEnvs.Array.data[4].first
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[4].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[5]'
-  - m_SavedProperties.m_TexEnvs.Array.data[5].first
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[5].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[6]'
-  - m_SavedProperties.m_TexEnvs.Array.data[6].first
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[6].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[7]'
-  - m_SavedProperties.m_TexEnvs.Array.data[7].first
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[7].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[8]'
-  - m_SavedProperties.m_TexEnvs.Array.data[8].first
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[8].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[9]'
-  - m_SavedProperties.m_TexEnvs.Array.data[9].first
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[9].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[10]'
-  - m_SavedProperties.m_TexEnvs.Array.data[10].first
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[10].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[11]'
-  - m_SavedProperties.m_TexEnvs.Array.data[11].first
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[11].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[12]'
-  - m_SavedProperties.m_TexEnvs.Array.data[12].first
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[12].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[13]'
-  - m_SavedProperties.m_TexEnvs.Array.data[13].first
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[13].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[14]'
-  - m_SavedProperties.m_TexEnvs.Array.data[14].first
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[14].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[15]'
-  - m_SavedProperties.m_TexEnvs.Array.data[15].first
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[15].second.m_Offset.y
-  - 'm_SavedProperties.m_TexEnvs.Array.data[16]'
-  - m_SavedProperties.m_TexEnvs.Array.data[16].first
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Texture
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Scale
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Scale.x
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Scale.y
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Offset
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Offset.x
-  - m_SavedProperties.m_TexEnvs.Array.data[16].second.m_Offset.y
-  - 'm_SavedProperties.m_Colors.Array.data[0]'
-  - m_SavedProperties.m_Colors.Array.data[0].first
-  - m_SavedProperties.m_Colors.Array.data[0].second
-  - m_SavedProperties.m_Colors.Array.data[0].second.r
-  - m_SavedProperties.m_Colors.Array.data[0].second.g
-  - m_SavedProperties.m_Colors.Array.data[0].second.b
-  - m_SavedProperties.m_Colors.Array.data[0].second.a
-  - 'm_SavedProperties.m_Colors.Array.data[1]'
-  - m_SavedProperties.m_Colors.Array.data[1].first
-  - m_SavedProperties.m_Colors.Array.data[1].second
-  - m_SavedProperties.m_Colors.Array.data[1].second.r
-  - m_SavedProperties.m_Colors.Array.data[1].second.g
-  - m_SavedProperties.m_Colors.Array.data[1].second.b
-  - m_SavedProperties.m_Colors.Array.data[1].second.a
+  m_ExcludedProperties: []
   m_CoupledType:
     m_NativeTypeID: 0
     m_ManagedTypePPtr: {fileID: 0}

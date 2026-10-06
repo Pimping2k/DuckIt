@@ -1,5 +1,7 @@
 ﻿using System;
+using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
+using Services;
 using UnityEngine;
 
 namespace Gameplay.Tools
@@ -20,25 +22,26 @@ namespace Gameplay.Tools
     {
         [SerializeField] private ToolType _type;
         
-        private PlayerToolController _playerToolController;
+        protected PlayerToolController PlayerToolController;
+        protected IInputService InputService;
         
         public ToolType Type => _type;
         
         private void Awake()
         {
-            _playerToolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
+            InputService = ServiceLocator.Resolve<IInputService>();
+            PlayerToolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
         }
 
         public virtual void OnPickedUp()
         {
-            _playerToolController.SetTool(this);
+            PlayerToolController.SetTool(this);
         }
 
         public virtual void OnDropped()
         {
-            _playerToolController.SetTool(null);
+            PlayerToolController.SetTool(null);
         }
-        
         public abstract void Use(Ray ray, bool pressed, float dt);
     }
 }

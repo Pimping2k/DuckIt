@@ -14,6 +14,9 @@ namespace Services
 
         private int _mainPriority = 999;
         
+        public CinemachineCamera Camera => _currentCamera;
+        public CinemachineBrain CameraBrain => _cameraBrain;
+        
         private void Awake()
         {
             OverlapCamera(_defaultCamera);
