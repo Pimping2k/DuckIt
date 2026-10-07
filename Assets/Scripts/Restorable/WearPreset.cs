@@ -1,75 +1,126 @@
-﻿using UnityEngine;
-#if UNITY_EDITOR
+﻿using System;
 using UnityEditor;
-#endif
+using UnityEngine;
 
-[CreateAssetMenu(menuName = "Restoration/Wear Preset", fileName = "Wear_New")]
-public class WearPreset : ScriptableObject
+namespace Restorable
 {
-    [Header("Мягкий слой: убирает тряпка/кисть (канал R)")]
-    public Color softColor = new Color(0.62f, 0.56f, 0.50f);
-    [Range(0f, 1f)] public float softCoverage = 1f;
-    public float softNoiseScale = 6f;
+    public enum WearKind { Dust = 0, Dirt = 1, OldPaint = 2, Rust = 3 }
 
-    [Header("Жёсткий слой: нужен скребок/шкурка (канал G)")]
-    public Color hardColor = new Color(0.66f, 0.31f, 0.16f);
-    [Range(0f, 1f)] public float hardCoverage = 0f;
-    public float hardNoiseScale = 9f;
-    public bool hardSolid;   // true = сплошной слой, false = пятнами
-}
-
-#if UNITY_EDITOR
-public static class WearPresetCreator
-{
-    const string Dir = "Assets/Restoration/WearPresets";
-
-    [MenuItem("Tools/Restoration/Create Wear Presets")]
-    static void CreateAll()
+    [Serializable]
+    public class WearLayer
     {
-        EnsureFolder("Assets/Restoration");
-        EnsureFolder(Dir);
+        [Tooltip("Есть ли этот слой на предмете")]
+        public bool enabled;
+        public Color color = Color.gray;
+        [Range(0f, 1f), Tooltip("Сколько поверхности покрыто (1 = почти всё)")]
+        public float coverage = 1f;
+        [Tooltip("Размер пятен: меньше = крупные пятна, больше = мелкие")]
+        public float noiseScale = 6f;
+        [Tooltip("Сплошной слой без пятен (coverage игнорируется)")]
+        public bool solid;
 
-        Make("Dusty",
-            new Color(0.62f, 0.56f, 0.50f), 1.0f, 6f,
-            Color.black, 0f, 9f, false);
-
-        Make("Moldy",
-            new Color(0.37f, 0.42f, 0.29f), 0.7f, 7f,
-            Color.black, 0f, 9f, false);
-
-        Make("Rusty",
-            new Color(0.55f, 0.50f, 0.45f), 0.35f, 5f,
-            new Color(0.66f, 0.31f, 0.16f), 0.6f, 10f, false);
-
-        Make("Peeling",
-            new Color(0.62f, 0.56f, 0.50f), 0.5f, 6f,
-            new Color(0.78f, 0.47f, 0.42f), 0.85f, 4f, false);
-
-        AssetDatabase.SaveAssets();
-        Debug.Log("Пресеты износа созданы в " + Dir);
+        public WearLayer() { }
+        public WearLayer(bool enabled, Color color, float coverage, float noiseScale, bool solid = false)
+        {
+            this.enabled = enabled; this.color = color; this.coverage = coverage;
+            this.noiseScale = noiseScale; this.solid = solid;
+        }
     }
 
-    static void Make(string name, Color soft, float softCov, float softScale,
-                     Color hard, float hardCov, float hardScale, bool solid)
+    [CreateAssetMenu(menuName = "Restoration/Wear Preset", fileName = "Wear_New")]
+    public class WearPreset : ScriptableObject
     {
-        string path = $"{Dir}/Wear_{name}.asset";
-        var p = AssetDatabase.LoadAssetAtPath<WearPreset>(path);
-        if (p == null)
+        [Tooltip("Нижний слой нельзя тереть, пока над ним лежит верхний (сначала пыль, потом краска, потом ржавчина)")]
+        public bool stacked = true;
+
+        [Header("1 · Пыль (самый верхний)")]
+        public WearLayer dust = new WearLayer(true, new Color(0.62f, 0.56f, 0.50f), 1f, 6f);
+
+        [Header("2 · Грязь, плесень, жир")]
+        public WearLayer dirt = new WearLayer(false, new Color(0.40f, 0.33f, 0.26f), 0.6f, 7f);
+
+        [Header("3 · Старая краска")]
+        public WearLayer oldPaint = new WearLayer(false, new Color(0.78f, 0.47f, 0.42f), 0.85f, 4f);
+
+        [Header("4 · Ржавчина (самый нижний)")]
+        public WearLayer rust = new WearLayer(false, new Color(0.66f, 0.31f, 0.16f), 0.6f, 10f);
+
+        public WearLayer Get(WearKind k)
         {
-            p = ScriptableObject.CreateInstance<WearPreset>();
+            switch (k)
+            {
+                case WearKind.Dust: return dust;
+                case WearKind.Dirt: return dirt;
+                case WearKind.OldPaint: return oldPaint;
+                default: return rust;
+            }
+        }
+    }
+
+#if UNITY_EDITOR
+    public static class WearPresetCreator
+    {
+        const string Dir = "Assets/Restoration/WearPresets";
+
+        // Существующие пресеты НЕ перезаписываются: твои настройки в безопасности.
+        [MenuItem("Tools/Restoration/Create Wear Presets")]
+        static void CreateAll()
+        {
+            EnsureFolder("Assets/Restoration");
+            EnsureFolder(Dir);
+
+            Make("Dusty", p => { S(p.dust, true, C(0.62f, 0.56f, 0.50f), 1f, 6f); });
+
+            Make("Moldy", p => { S(p.dirt, true, C(0.37f, 0.42f, 0.29f), 0.7f, 7f); });
+
+            Make("Rusty", p =>
+            {
+                S(p.dust, true, C(0.62f, 0.56f, 0.50f), 0.5f, 6f);
+                S(p.rust, true, C(0.66f, 0.31f, 0.16f), 0.6f, 10f);
+            });
+
+            Make("Peeling", p =>
+            {
+                S(p.dust, true, C(0.62f, 0.56f, 0.50f), 0.4f, 6f);
+                S(p.oldPaint, true, C(0.78f, 0.47f, 0.42f), 0.85f, 4f);
+            });
+
+            // Жёсткий: всё сразу
+            Make("Neglected", p =>
+            {
+                S(p.dust, true, C(0.62f, 0.56f, 0.50f), 1f, 6f);
+                S(p.dirt, true, C(0.40f, 0.33f, 0.26f), 0.6f, 7f);
+                S(p.oldPaint, true, C(0.78f, 0.47f, 0.42f), 0.7f, 4f);
+                S(p.rust, true, C(0.66f, 0.31f, 0.16f), 0.45f, 10f);
+            });
+
+            AssetDatabase.SaveAssets();
+            Debug.Log("Пресеты износа созданы в " + Dir);
+        }
+
+        static Color C(float r, float g, float b) => new Color(r, g, b);
+
+        static void S(WearLayer l, bool on, Color c, float cov, float scale)
+        {
+            l.enabled = on; l.color = c; l.coverage = cov; l.noiseScale = scale;
+        }
+
+        static void Make(string name, Action<WearPreset> setup)
+        {
+            string path = $"{Dir}/Wear_{name}.asset";
+            if (AssetDatabase.LoadAssetAtPath<WearPreset>(path) != null) return;
+
+            var p = ScriptableObject.CreateInstance<WearPreset>();
+            setup(p);
             AssetDatabase.CreateAsset(p, path);
         }
-        p.softColor = soft;  p.softCoverage = softCov;  p.softNoiseScale = softScale;
-        p.hardColor = hard;  p.hardCoverage = hardCov;  p.hardNoiseScale = hardScale;
-        p.hardSolid = solid;
-        EditorUtility.SetDirty(p);
-    }
 
-    static void EnsureFolder(string path)
-    {
-        if (AssetDatabase.IsValidFolder(path)) return;
-        var parent = System.IO.Path.GetDirectoryName(path).Replace('\\', '/');
-        AssetDatabase.CreateFolder(parent, System.IO.Path.GetFileName(path));
+        static void EnsureFolder(string path)
+        {
+            if (AssetDatabase.IsValidFolder(path)) return;
+            var parent = System.IO.Path.GetDirectoryName(path).Replace('\\', '/');
+            AssetDatabase.CreateFolder(parent, System.IO.Path.GetFileName(path));
+        }
     }
-}
 #endif
+}

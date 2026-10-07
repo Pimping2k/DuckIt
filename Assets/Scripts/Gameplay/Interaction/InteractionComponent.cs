@@ -38,6 +38,7 @@ namespace Gameplay.Interaction
         {
             if (state)
             {
+                Debug.Log($"SUBSCRIBE {gameObject.name}");
                 _inputService.Player.Interact.performed += OnInteractPerformed;
             }
             else
@@ -48,6 +49,7 @@ namespace Gameplay.Interaction
 
         private void OnInteractPerformed(InputAction.CallbackContext ctx)
         {
+            Debug.Log($"Кнопка нажата! Текущий _lastInteractable: {_lastInteractable}");
             _lastInteractable?.Interact();
         }
 

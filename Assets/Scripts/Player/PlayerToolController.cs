@@ -6,8 +6,11 @@ namespace Player
 {
     public class PlayerToolController : PlayerComponent
     {
+        [SerializeField] private Transform _holdTransform;
+
+        public Transform HoldTransform => _holdTransform;
         public BaseTool CurrentTool { get; private set; }
-        public event Action<BaseTool> ToolChanged;
+        public event Action<BaseTool, BaseTool> ToolChanged;
 
         public override void Initialize()
         {
@@ -16,13 +19,20 @@ namespace Player
 
         public void SetTool(BaseTool tool)
         {
-            if (CurrentTool == tool) return;
+            if (CurrentTool == tool) 
+                return;
 
-            if (CurrentTool != null) CurrentTool.OnDropped();
-            CurrentTool = tool;
-            if (CurrentTool != null) CurrentTool.OnPickedUp();
+            if (CurrentTool != null) 
+                CurrentTool.OnDropped();
+            
+            var oldTool = CurrentTool;
+            var newTool = tool;
+            CurrentTool = newTool;
+            
+            if (CurrentTool != null) 
+                CurrentTool.OnPickedUp();
 
-            ToolChanged?.Invoke(tool);
+            ToolChanged?.Invoke(oldTool, newTool);
         }
     }
 }

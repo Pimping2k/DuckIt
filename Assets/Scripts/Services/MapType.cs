@@ -1,4 +1,4 @@
-namespace Gameplay.Core.Services
+namespace Services
 {
     public enum MapType
     {

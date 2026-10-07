@@ -6,11 +6,16 @@ Shader "Restoration/ToonRestorable"
         _BaseMap ("Bare Material Texture", 2D) = "white" {}
         _BaseColor ("Bare Material Color", Color) = (0.87, 0.66, 0.47, 1)
 
-        [Header(State mask UV1)]
-        _StateMask ("State Mask RGBA", 2D) = "black" {}
+        [Header(Masks)]
+        _WearMask ("Wear Mask: R dust, G dirt, B old paint, A rust", 2D) = "black" {}
+        _PaintMask ("Paint Mask: R new paint, G varnish", 2D) = "black" {}
         _MaskUVSet ("Mask UV: 0 = UV0, 1 = UV1", Float) = 1
-        _DirtColor ("Dirt", Color) = (0.55, 0.47, 0.40, 1)
+
+        [Header(Layer colors)]
+        _DustColor ("Dust", Color) = (0.62, 0.56, 0.50, 1)
+        _DirtColor ("Dirt", Color) = (0.40, 0.33, 0.26, 1)
         _OldPaintColor ("Old Paint", Color) = (0.78, 0.47, 0.42, 1)
+        _RustColor ("Rust", Color) = (0.66, 0.31, 0.16, 1)
         _NewPaintColor ("New Paint", Color) = (0.55, 0.80, 0.75, 1)
         _EdgeLo ("Mask Edge Low", Range(0, 1)) = 0.42
         _EdgeHi ("Mask Edge High", Range(0, 1)) = 0.58
@@ -44,14 +49,17 @@ Shader "Restoration/ToonRestorable"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
         TEXTURE2D(_BaseMap);   SAMPLER(sampler_BaseMap);
-        TEXTURE2D(_StateMask); SAMPLER(sampler_StateMask);
+        TEXTURE2D(_WearMask);  SAMPLER(sampler_WearMask);
+        TEXTURE2D(_PaintMask); SAMPLER(sampler_PaintMask);
 
         CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
-            float _MaskUVSet;
             half4 _BaseColor;
+            half _MaskUVSet;
+            half4 _DustColor;
             half4 _DirtColor;
             half4 _OldPaintColor;
+            half4 _RustColor;
             half4 _NewPaintColor;
             half _EdgeLo;
             half _EdgeHi;
@@ -124,17 +132,26 @@ Shader "Restoration/ToonRestorable"
             {
                 // ---- Слои состояния ----
                 half3 bare = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb * _BaseColor.rgb;
-                half4 m = SAMPLE_TEXTURE2D(_StateMask, sampler_StateMask, i.uv1);
+                half4 w = SAMPLE_TEXTURE2D(_WearMask, sampler_WearMask, i.uv1);
+                half2 p = SAMPLE_TEXTURE2D(_PaintMask, sampler_PaintMask, i.uv1).rg;
 
-                half dirt  = EdgeMask(m.r);
-                half oldP  = EdgeMask(m.g);
-                half newP  = EdgeMask(m.b);
-                half varn  = saturate(m.a);
+                half dust = EdgeMask(w.r);
+                half dirt = EdgeMask(w.g);
+                half oldP = EdgeMask(w.b);
+                half rust = EdgeMask(w.a);
+                half newP = EdgeMask(p.r);
+                half varn = saturate(p.g);
 
+                // снизу вверх: материал → ржавчина → старая краска → новая краска → грязь → пыль
                 half3 albedo = bare;
-                albedo = lerp(albedo, _OldPaintColor.rgb, oldP);   // старая краска на голом материале
-                albedo = lerp(albedo, _NewPaintColor.rgb, newP);   // новая краска поверх
-                albedo = lerp(albedo, _DirtColor.rgb, dirt);       // грязь поверх всего
+                albedo = lerp(albedo, _RustColor.rgb, rust);
+                albedo = lerp(albedo, _OldPaintColor.rgb, oldP);
+                albedo = lerp(albedo, _NewPaintColor.rgb, newP);
+                albedo = lerp(albedo, _DirtColor.rgb, dirt);
+                albedo = lerp(albedo, _DustColor.rgb, dust);
+
+                // насколько поверхность "потускнела": износ гасит блик и рим
+                half wear = max(max(dust, dirt), max(oldP, rust) * (1.0h - newP));
 
                 // ---- Cel-освещение ----
                 float3 nWS = normalize(i.normalWS);
@@ -150,8 +167,8 @@ Shader "Restoration/ToonRestorable"
                 half3 lightTint = lerp(half3(1, 1, 1), mainLight.color, _LightContribution);
                 half3 col = lerp(shadedCol, albedo, lit) * lightTint;
 
-                // ---- Блик: лак + чуть свежей краски, грязь гасит ----
-                half gloss = saturate(varn + newP * _PaintGloss) * (1.0h - dirt);
+                // ---- Блик: лак + чуть свежей краски, износ гасит ----
+                half gloss = saturate(varn + newP * _PaintGloss) * (1.0h - wear);
                 float3 h = normalize(mainLight.direction + viewDir);
                 half ndh = saturate(dot(nWS, h));
                 half thr = 1.0h - _GlintSize * 0.25h;
@@ -163,7 +180,7 @@ Shader "Restoration/ToonRestorable"
                 half rim = 1.0h - saturate(dot(nWS, viewDir));
                 half rimThr = 1.0h - _RimSize;
                 rim = smoothstep(rimThr, rimThr + _RimSoft, rim);
-                col += _GlintColor.rgb * rim * _RimStrength * (1.0h - dirt);
+                col += _GlintColor.rgb * rim * _RimStrength * (1.0h - wear);
 
                 return half4(col, 1);
             }

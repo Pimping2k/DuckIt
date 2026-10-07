@@ -16,7 +16,7 @@ namespace Gameplay.Interaction
             _outlinable.ChangeOutline(isHighlighted);
             OnHighlighted(isHighlighted);
         }
-
+        
         protected virtual void OnInteracted(){}
         protected virtual void OnHighlighted(bool isHighlighted) {}
     }

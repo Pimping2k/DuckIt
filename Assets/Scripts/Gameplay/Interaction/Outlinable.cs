@@ -31,5 +31,11 @@ namespace Gameplay.Interaction
             _debug = !_debug;
             ChangeOutline(_debug);
         }
+
+        private void OnValidate()
+        {
+            if(_outlinableRenderers == null || _outlinableRenderers.Count == 0)
+                GetComponentsInChildren(true, _outlinableRenderers);
+        }
     }
 }
