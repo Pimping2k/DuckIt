@@ -21,8 +21,8 @@ namespace Gameplay.Tools.Implementation
                 
                 if(!item.TryGetComponent<BoxInteractable>(out var box))
                     continue;
-                
-                
+
+                box.Interact();
             }
         }
     }

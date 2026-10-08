@@ -1,5 +1,6 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using Data;
 using DG.Tweening;
 using Extensions;
 using Gameplay.Interaction;
@@ -19,9 +20,6 @@ namespace Gameplay.Cardboard
     
     public class BoxInteractable : Interactable
     {
-        [SerializeField] private float _moveDuration = 0.7f;
-        [SerializeField] private Ease _moveEase = Ease.InOutBounce;
-
         private BoxState _state;
         private BoxState State
         {
@@ -42,12 +40,12 @@ namespace Gameplay.Cardboard
             PerformInteractionByState();
         }
 
-        private async void PerformInteractionByState()
+        private void PerformInteractionByState()
         {
             switch (State)
             {
                 case BoxState.Initial:
-                    await PerformMove();
+                    PerformMove();
                     State = BoxState.Moved;
                     break;
                 case BoxState.Moved:
@@ -59,16 +57,17 @@ namespace Gameplay.Cardboard
             }
         }
         
-        private async UniTask PerformMove()
+        private void PerformMove()
         {
             var targetPosition = _placementManager.Positions.GetRandomValue();
-            transform.DOMove(targetPosition.position, _moveDuration).SetEase(_moveEase);
-            await UniTask.WaitForSeconds(_moveDuration);
+            var targetObject = transform;
+
+            Animations.LaunchBox(targetObject, targetPosition);
         }
 
         private void PerformOpenBox()
         {
-            if(LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>().CurrentTool.Type != ToolType.Knife)
+            if(LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>().CurrentTool?.Type != ToolType.Knife)
                 return;
         }
     }

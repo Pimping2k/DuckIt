@@ -29,13 +29,6 @@ namespace Gameplay.Interaction
             }
         }
 
-        [ContextMenu("Toggle Highlight (Debug)")]
-        private void ToggleHighlightDebug()
-        {
-            _debug = !_debug;
-            ChangeOutline(_debug);
-        }
-
         private void OnValidate()
         {
             if(_outlinableRenderers == null || _outlinableRenderers.Count == 0)
