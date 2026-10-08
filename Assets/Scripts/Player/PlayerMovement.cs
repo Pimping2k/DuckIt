@@ -32,7 +32,7 @@ namespace Player
             ToggleSubscriptions(false);
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             MovePlayer();
             RotatePlayer();

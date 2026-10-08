@@ -12,16 +12,20 @@ namespace Gameplay.Interaction
         private Color _defaultColor = Color.black;
         private bool _debug;
         
+        private MaterialPropertyBlock _block;
         private readonly int _colorProperty = Shader.PropertyToID("_OutlineColor");
         
         public void ChangeOutline(bool isHighlighted)
         {
+            _block ??= new MaterialPropertyBlock();
+            var color = isHighlighted ? _highlightedColor : _defaultColor;
+
             foreach (var rend in _outlinableRenderers)
             {
-                if (!rend) 
-                    continue;
-
-                rend.material.SetColor(_colorProperty, isHighlighted ? _highlightedColor : _defaultColor);
+                if (!rend) continue;
+                rend.GetPropertyBlock(_block);
+                _block.SetColor(_colorProperty, color);
+                rend.SetPropertyBlock(_block);
             }
         }
 

@@ -22,16 +22,10 @@ namespace Player
             if (CurrentTool == tool) 
                 return;
 
-            if (CurrentTool != null) 
-                CurrentTool.OnDropped();
-            
             var oldTool = CurrentTool;
             var newTool = tool;
             CurrentTool = newTool;
             
-            if (CurrentTool != null) 
-                CurrentTool.OnPickedUp();
-
             ToolChanged?.Invoke(oldTool, newTool);
         }
     }

@@ -49,7 +49,6 @@ namespace Gameplay.Interaction
 
         private void OnInteractPerformed(InputAction.CallbackContext ctx)
         {
-            Debug.Log($"Кнопка нажата! Текущий _lastInteractable: {_lastInteractable}");
             _lastInteractable?.Interact();
         }
 

@@ -5,10 +5,11 @@ namespace Gameplay.Tools
     [CreateAssetMenu(menuName = "Restoration/Tool Profile")]
     public class ToolProfile : ScriptableObject
     {
-        [Header("Effects (R dirt, G old paint, B new paint, A lak)")]
-        public Vector4 add;
-        public Vector4 sub;
-        public bool gateByDirt;
+        [Header("Снимает износ: R пыль, G грязь, B старая краска, A ржавчина (0..1)")]
+        public Vector4 wearSub;
+        [Header("Наносит: R новая краска, G лак (0..1)")]
+        public Vector2 paintAdd;
+        public bool gateByWear;
 
         [Header("Brushes")]
         [Range(0.005f, 0.2f)] public float radius = 0.04f;

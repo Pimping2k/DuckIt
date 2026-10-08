@@ -44,6 +44,7 @@ namespace Restorable
         /// Доля новой краски, лежащей на нетронутой старой
         public float OverPaintRatio { get; private set; }
         public bool UseUV0 { get; private set; }
+        public bool IsReady { get; private set; }   // ← добавить
 
         public float GetLayerCleaned(WearKind kind) => LayerCleaned[(int)kind];
 
@@ -51,6 +52,7 @@ namespace Restorable
 
         const int SmallSize = 64;
 
+        public const string PaintLayerName = "Restorable";
         static readonly int BaseMapId    = Shader.PropertyToID("_BaseMap");
         static readonly int BaseColorId  = Shader.PropertyToID("_BaseColor");
         static readonly int WearMaskId   = Shader.PropertyToID("_WearMask");
@@ -87,21 +89,53 @@ namespace Restorable
             toonShader = Shader.Find("Restoration/ToonRestorable");
             stampShader = Shader.Find("Hidden/Restoration/Stamp");
         }
+        
+        void OnValidate() => maskSize = ValidMaskSize(maskSize);
+        static int ValidMaskSize(int v) => Mathf.Max(SmallSize, Mathf.ClosestPowerOfTwo(v));
+
+        bool TryResolveTargets(out Mesh mesh)
+        {
+            mesh = null;
+            if (targetRenderer == null) targetRenderer = GetComponentInChildren<Renderer>();
+            if (targetRenderer == null)
+            {
+                Debug.LogError($"{name}: не найден Renderer", this);
+                return false;
+            }
+
+            if (meshFilter == null) meshFilter = targetRenderer.GetComponent<MeshFilter>();
+            if (meshFilter == null || meshFilter.sharedMesh == null)
+            {
+                Debug.LogError($"{name}: нужен MeshRenderer + MeshFilter с мешем (SkinnedMeshRenderer не поддерживается)", this);
+                return false;
+            }
+
+            mesh = meshFilter.sharedMesh;
+            return true;
+        }
 
         void Awake()
         {
-            if (targetRenderer == null) targetRenderer = GetComponentInChildren<Renderer>();
-            if (meshFilter == null) meshFilter = targetRenderer.GetComponent<MeshFilter>();
+            if (!TryResolveTargets(out var mesh)) 
+            { 
+                enabled = false; 
+                return;
+            }
+            maskSize = ValidMaskSize(maskSize);
+
             if (toonShader == null) toonShader = Shader.Find("Restoration/ToonRestorable");
             if (stampShader == null) stampShader = Shader.Find("Hidden/Restoration/Stamp");
             if (preset == null) preset = ScriptableObject.CreateInstance<WearPreset>();
 
-            var mesh = meshFilter.sharedMesh;
             UseUV0 = !mesh.HasVertexAttribute(VertexAttribute.TexCoord1);
-            if (UseUV0)
-                Debug.LogWarning($"{name}: у меша нет UV1, маска рисуется по UV0 (нужна развёртка без перекрытий).", this);
+            if (UseUV0 && !mesh.HasVertexAttribute(VertexAttribute.TexCoord0))
+            {
+                Debug.LogError($"{name}: у меша нет ни UV0, ни UV1", this);
+                enabled = false;
+                return;
+            }
 
-            SetupCollider(mesh);
+            SetupPaintCollider(mesh);
             SetupMaterial();
 
             _stamp = new Material(stampShader);
@@ -121,6 +155,10 @@ namespace Restorable
             _mat.SetTexture(WearMaskId, _wearA);
             _mat.SetTexture(PaintMaskId, _paintA);
             ReadProgress();
+            _mat.SetTexture(WearMaskId, _wearA);
+            _mat.SetTexture(PaintMaskId, _paintA);
+            ReadProgress();
+            IsReady = true;
         }
 
         void OnDestroy()
@@ -138,17 +176,16 @@ namespace Restorable
         // ---------------------------------------------------------------------
         // Автонастройка
         // ---------------------------------------------------------------------
-        void SetupCollider(Mesh mesh)
+        void SetupPaintCollider(Mesh mesh)
         {
-            var go = targetRenderer.gameObject;
-            var mc = go.GetComponent<MeshCollider>();
-            if (mc == null) mc = go.AddComponent<MeshCollider>();
-            mc.sharedMesh = mesh;
-            mc.convex = false;
+            var go = new GameObject("PaintCollider");
+            go.transform.SetParent(targetRenderer.transform, false);
 
-            // Box/Sphere и прочие не отдают UV, чтобы они не перехватывали луч, отключаем их
-            foreach (var c in go.GetComponents<Collider>())
-                if (c != mc) c.enabled = false;
+            int layer = LayerMask.NameToLayer(PaintLayerName);
+            if (layer >= 0) go.layer = layer;
+            else Debug.LogWarning($"Нет слоя \"{PaintLayerName}\", PaintCollider остаётся на слое родителя", this);
+
+            go.AddComponent<MeshCollider>().sharedMesh = mesh;
         }
 
         void SetupMaterial()
@@ -230,9 +267,10 @@ namespace Restorable
         /// wearSub: насколько тул берёт каждый слой = (пыль, грязь, старая краска, ржавчина), 0..1.
         /// paintAdd: что тул наносит = (новая краска, лак), 0..1.
         /// gateByWear: не наносить там, где виден износ (пыль, грязь, ржавчина).
-        public void Stroke(Vector2 uv, float uvRadius, float hardness, float strength,
-            Vector4 wearSub, Vector2 paintAdd, bool gateByWear)
-        {
+        public void Stroke(Vector2 uv, float uvRadius, float hardness, float strength, Vector4 wearSub, Vector2 paintAdd, bool gateByWear) {
+            if (!IsReady) 
+                return;
+            
             _stamp.SetVector(BrushUVId, uv);
             _stamp.SetFloat(RadiusId, uvRadius);
             _stamp.SetFloat(HardnessId, Mathf.Clamp(hardness, 0f, 0.99f));

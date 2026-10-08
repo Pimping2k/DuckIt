@@ -40,12 +40,12 @@ namespace Gameplay.Tools
                 return;
             
             _moveInHandsTween?.Kill();
-            _moveInHandsTween = tool.transform.DOMove(_playerToolController.HoldTransform.position, _moveDuration, true).OnComplete(() =>
+            _moveInHandsTween = tool.transform.DOMove(_playerToolController.HoldTransform.position, _moveDuration).OnComplete(() =>
             {
                 tool.transform.SetParent(_playerToolController.HoldTransform);
                 tool.transform.localPosition = Vector3.zero;
             });
-            _moveInHandsTween = tool.transform.DORotate(_playerToolController.HoldTransform.localEulerAngles, _moveDuration).OnComplete(()=>tool.transform.rotation = Quaternion.Euler(Vector3.zero));
+            _moveInHandsTween = tool.transform.DOLocalRotate(_playerToolController.HoldTransform.localEulerAngles, _moveDuration).OnComplete(()=>tool.transform.localRotation = Quaternion.Euler(Vector3.zero));
         }
 
         private void Restore(BaseTool tool)
@@ -54,8 +54,12 @@ namespace Gameplay.Tools
                 return;
     
             _restoreTween?.Kill();
-            _restoreTween = tool.transform.DOMove(initialToolTransform.position, _moveDuration,true);
-            _restoreTween = tool.transform.DORotate(initialToolTransform.localEulerAngles, _moveDuration);
+            _restoreTween = tool.transform.DOMove(initialToolTransform.position, _moveDuration,true).OnComplete(() =>
+            {
+                tool.transform.SetParent(initialToolTransform);
+                tool.transform.localPosition = Vector3.zero;
+            });
+            _restoreTween = tool.transform.DOLocalRotate(initialToolTransform.localEulerAngles, _moveDuration).OnComplete(()=> tool.transform.rotation = Quaternion.Euler(Vector3.zero));
         }
     }
 }
