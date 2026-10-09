@@ -13,9 +13,11 @@ namespace View
         [SerializeField] private bool _closeWithBackButton;
         
         public ViewType ViewType => _viewType;
-    
+        
         protected ViewManager ViewManager;
         protected IInputService InputService;
+
+        protected object[] Payload = {};
         
         protected virtual void Start()
         {
@@ -23,34 +25,37 @@ namespace View
             InputService = ServiceLocator.Resolve<IInputService>();
             
             if (_closeWithBackButton)
-            {
                 InputService.UI.Cancel.performed += OnBackPerformed;
-            }
         }
 
         private void OnDestroy()
         {
             if (_closeWithBackButton)
-            {
                 InputService.UI.Cancel.performed -= OnBackPerformed;
-            }
         }
 
-        public virtual void Initialize()
+        public void Setup(object[] payload)
+        {
+            OnRequested(payload);
+        }
+        
+        public void Initialize()
         {
             OnInitialized();
         }
 
-        public virtual void Show()
+        public void Show()
         {
+            InputService.ChangeMap(MapType.UI);
             gameObject.SetActive(true);
             OnShown();
         }
 
-        public virtual void Hide()
+        public void Hide()
         {
-            OnHide();
+            InputService.ChangeMap(MapType.Gameplay);
             gameObject.SetActive(false);
+            OnHide();
         }
 
         public void Dispose()
@@ -62,7 +67,8 @@ namespace View
         protected virtual void OnInitialized() { }
         protected virtual void OnShown() { }
         protected virtual void OnHide() { }
-
+        protected virtual void OnRequested(params object[] payload) { }
+        
         private void OnBackPerformed(InputAction.CallbackContext obj)
         {
             ViewManager.HideCurrentView();

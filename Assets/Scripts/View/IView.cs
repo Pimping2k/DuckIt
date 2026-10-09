@@ -1,4 +1,6 @@
-﻿namespace Gameplay.Core.View
+﻿using View;
+
+namespace Gameplay.Core.View
 {
     public interface IView
     {

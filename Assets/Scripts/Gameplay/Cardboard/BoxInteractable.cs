@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Data;
 using DG.Tweening;
+using EventSub;
+using EventSub.Implementation;
 using Extensions;
 using Gameplay.Interaction;
 using Gameplay.Tools;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
 using UnityEngine;
+using View;
 
 namespace Gameplay.Cardboard
 {
@@ -30,11 +33,14 @@ namespace Gameplay.Cardboard
 
     public class BoxInteractable : Interactable
     {
+        [SerializeField] private BoxConfig _config;
         [SerializeField] private GameObject _tape;
         [SerializeField] private Transform _startPoint;
         [SerializeField] private Transform _endPoint;
         [SerializeField] private FlapPose[] _flaps;
         
+        private PlacementManager _placementManager;
+
         private bool _isBusy;
         private BoxState _state;
 
@@ -47,8 +53,9 @@ namespace Gameplay.Cardboard
                 OnStateChange?.Invoke(this, value);
             }
         }
+        
+        public BoxConfig Config { get; private set; }
 
-        private PlacementManager _placementManager;
         public event Action<BoxInteractable, BoxState> OnStateChange;
 
         private void Awake()
@@ -56,6 +63,11 @@ namespace Gameplay.Cardboard
             _placementManager = ServiceLocator.Resolve<PlacementManager>();
         }
 
+        public void Setup(BoxConfig config)
+        {
+            Config = config;
+        }
+        
         protected override void OnInteracted()
         {
             PerformInteractionByState();
@@ -73,6 +85,9 @@ namespace Gameplay.Cardboard
                     break;
                 case BoxState.Moved:
                     PerformOpenBox();
+                    break;
+                case BoxState.Finish:
+                    EventBus.Publish(new RequestViewEvent(ViewType.BoxNote, _config));
                     break;
             }
         }
@@ -103,9 +118,9 @@ namespace Gameplay.Cardboard
             _isBusy = true;
             Animations.OpenBoxWithKnife(toolController.CurrentTool.transform, _startPoint, _endPoint, toolController.HoldTransform.transform).OnComplete(() =>
             {
-                PerformOpenFlaps();
                 _tape.SetActive(false);
                 State = BoxState.Opened;
+                PerformOpenFlaps();
             });
         }
 

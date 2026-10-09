@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using EventSub;
+using EventSub.Implementation;
 using MyPackage.Runtime.ServiceLocator_Core;
 using UnityEngine;
-using View;
 
-namespace Gameplay.Core.View
+namespace View
 {
     public class ViewManager : MonoBehaviour, IService
     {
@@ -22,6 +23,8 @@ namespace Gameplay.Core.View
                 
                 _viewMap[view.ViewType] = view;
             }
+            
+            EventBus.Subscribe<RequestViewEvent>(OnRequestedViewEvent);
         }
 
         private void Start()
@@ -33,22 +36,33 @@ namespace Gameplay.Core.View
             }
         }
 
+        private void OnDestroy()
+        {
+            EventBus.Unsubscribe<RequestViewEvent>(OnRequestedViewEvent);
+        }
+
+        public TView ShowView<TView>(ViewType type, object[] payload = null) where TView : BaseView
+        {
+            return ShowView(type, payload) as TView;
+        }
+        
         /// <summary>
         /// General method to get and instant show selected view
         /// Closing previous open view
         /// </summary>
-        public TView ShowView<TView>(ViewType type) where TView : BaseView
+        public BaseView ShowView(ViewType type, object[] payload = null)
         {
-            _currentView?.Hide();
-
-            if (_viewMap.TryGetValue(type, out var view))
+            if (!_viewMap.TryGetValue(type, out var view))
             {
-                _currentView = view;
-                _currentView.Show();
-                return view as TView;
+                Debug.LogError($"Вьюха {type} не зарегистрирована в ViewManager", this);
+                return null;
             }
 
-            return null;
+            if (_currentView) _currentView.Hide();
+            _currentView = view;
+            view.Setup(payload);
+            view.Show();
+            return view;
         }
 
         public void HideViewByType(ViewType type)
@@ -56,7 +70,7 @@ namespace Gameplay.Core.View
             _viewMap.TryGetValue(type, out var view);
             view?.Hide();
         }
-        
+
         /// <summary>
         /// Hides current opened view
         /// </summary>
@@ -64,6 +78,11 @@ namespace Gameplay.Core.View
         {
             _currentView?.Hide();
             _currentView = null;
+        }
+
+        private void OnRequestedViewEvent(RequestViewEvent e)
+        {
+            ShowView(e.ViewType, e.Payload);
         }
     }
 }
