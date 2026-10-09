@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MyPackage.Runtime.ServiceLocator_Core;
 using UnityEngine;
+using View;
 
 namespace Gameplay.Core.View
 {

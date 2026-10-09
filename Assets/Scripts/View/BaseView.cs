@@ -1,14 +1,18 @@
 ﻿using System;
+using Gameplay.Core.View;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Services;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Gameplay.Core.View
+namespace View
 {
     public class BaseView : MonoBehaviour, IView, IDisposable
     {
+        [SerializeField] private ViewType _viewType;
         [SerializeField] private bool _closeWithBackButton;
+        
+        public ViewType ViewType => _viewType;
     
         protected ViewManager ViewManager;
         protected IInputService InputService;
@@ -54,7 +58,6 @@ namespace Gameplay.Core.View
             OnDisposed();
         }
 
-        public ViewType ViewType { get; }
         protected virtual void OnDisposed(){}
         protected virtual void OnInitialized() { }
         protected virtual void OnShown() { }

@@ -29,6 +29,7 @@ namespace Services
         private void OnDestroy()
         {
             InputSystem.Disable();
+            InputSystem.Dispose();
         }
 
         public void ChangeMap(MapType mapType)

@@ -9,14 +9,7 @@ namespace Bootstrap
 {
     public class BootstrapManager : MonoBehaviour, IService
     {
-        public bool IsReady { get; private set; }
         public event Action<float> ProgressChanged;
-
-        private void Awake()
-        {
-            DontDestroyOnLoad(gameObject);
-            IsReady = true;
-        }
 
         private void Start()
         {
@@ -36,7 +29,9 @@ namespace Bootstrap
                 ProgressChanged?.Invoke(loadOp.progress);
                 await UniTask.NextFrame(cancellationToken: token);
             }
-
+            
+            ProgressChanged?.Invoke(1f);
+            
             var mainScene = SceneManager.GetSceneByName(Tags.Scenes.GAMEPLAY);
             SceneManager.SetActiveScene(mainScene);
 

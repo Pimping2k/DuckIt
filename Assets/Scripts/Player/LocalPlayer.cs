@@ -12,21 +12,21 @@ namespace Player
 
         private void Awake()
         {
-            _playerComponents = GetComponentsInChildren<PlayerComponent>().ToList();
-            
-            if (!Instance)
-            {
-                Instance = this;
-            }
-            else
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
+            Instance = this;
 
-            foreach (var playerComponent in _playerComponents)
-            {
-                playerComponent.Initialize();
-            }
+            _playerComponents = GetComponentsInChildren<PlayerComponent>().ToList();
+            foreach (var c in _playerComponents) c.Initialize();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) 
+                Instance = null;
         }
 
         public T GetPlayerComponent<T>() where T : PlayerComponent

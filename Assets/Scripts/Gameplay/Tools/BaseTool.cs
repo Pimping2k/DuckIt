@@ -28,11 +28,14 @@ namespace Gameplay.Tools
         protected PlayerToolController PlayerToolController;
         protected IInputService InputService;
         
+        private Collider[] _colliders;
+        
         public ToolType Type => _type;
         
-        private void Awake()
+        protected virtual void Awake()
         {
             InputService = ServiceLocator.Resolve<IInputService>();
+            _colliders = GetComponentsInChildren<Collider>();
         }
 
         private void Start()
@@ -49,14 +52,22 @@ namespace Gameplay.Tools
             OnPickedUp();
         }
 
+        private void SetPhysicsActive(bool active)
+        {
+            foreach (var c in _colliders) 
+                c.enabled = active;
+        }
+
         public virtual void OnPickedUp()
         {
+            SetPhysicsActive(false);
             PlayerToolController.SetTool(this);
         }
 
         public virtual void OnDropped()
         {
             PlayerToolController.SetTool(null);
+            SetPhysicsActive(true);
         }
 
         public abstract void Use(Ray ray, bool pressed, float dt);

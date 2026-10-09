@@ -10,8 +10,9 @@ namespace Gameplay.Tools
         protected float _radius;
         public float Radius => _radius;
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _radius = _profile.radius;
         }
 

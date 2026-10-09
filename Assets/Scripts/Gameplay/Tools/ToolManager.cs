@@ -36,30 +36,28 @@ namespace Gameplay.Tools
 
         private void SetInPlayerHands(BaseTool tool)
         {
-            if(!tool)
+            if (!tool) 
                 return;
             
-            _moveInHandsTween?.Kill();
-            _moveInHandsTween = tool.transform.DOMove(_playerToolController.HoldTransform.position, _moveDuration).OnComplete(() =>
-            {
-                tool.transform.SetParent(_playerToolController.HoldTransform);
-                tool.transform.localPosition = Vector3.zero;
-            });
-            _moveInHandsTween = tool.transform.DOLocalRotate(_playerToolController.HoldTransform.localEulerAngles, _moveDuration).OnComplete(()=>tool.transform.localRotation = Quaternion.Euler(Vector3.zero));
+            var t = tool.transform;
+            t.DOKill();
+            t.SetParent(_playerToolController.HoldTransform, true);
+            DOTween.Sequence().SetTarget(t).SetLink(tool.gameObject)
+                .Append(t.DOLocalMove(Vector3.zero, _moveDuration))
+                .Join(t.DOLocalRotateQuaternion(Quaternion.identity, _moveDuration));
         }
 
         private void Restore(BaseTool tool)
         {
-            if(!tool || !_toolsInitialPositionMap.TryGetValue(tool, out var initialToolTransform))
+            if (!tool || !_toolsInitialPositionMap.TryGetValue(tool, out var home))
                 return;
-    
-            _restoreTween?.Kill();
-            _restoreTween = tool.transform.DOMove(initialToolTransform.position, _moveDuration,true).OnComplete(() =>
-            {
-                tool.transform.SetParent(initialToolTransform);
-                tool.transform.localPosition = Vector3.zero;
-            });
-            _restoreTween = tool.transform.DOLocalRotate(initialToolTransform.localEulerAngles, _moveDuration).OnComplete(()=> tool.transform.rotation = Quaternion.Euler(Vector3.zero));
+            
+            var t = tool.transform;
+            t.DOKill();
+            t.SetParent(home, true);
+            DOTween.Sequence().SetTarget(t).SetLink(tool.gameObject)
+                .Append(t.DOLocalMove(Vector3.zero, _moveDuration))
+                .Join(t.DOLocalRotateQuaternion(Quaternion.identity, _moveDuration));
         }
     }
 }

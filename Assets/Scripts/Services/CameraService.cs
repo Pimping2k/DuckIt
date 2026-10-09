@@ -1,4 +1,5 @@
-﻿using MyPackage.Runtime.ServiceLocator_Core;
+﻿using System.Collections.Generic;
+using MyPackage.Runtime.ServiceLocator_Core;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -11,7 +12,8 @@ namespace Services
         
         private CinemachineCamera _currentCamera;
         private CinemachineCamera _previousCamera;
-
+        private readonly Stack<CinemachineCamera> _stack = new();
+        
         private int _mainPriority = 999;
         
         public CinemachineCamera Camera => _currentCamera;
@@ -22,30 +24,25 @@ namespace Services
             OverlapCamera(_defaultCamera);
         }
 
-        public void OverlapCamera(CinemachineCamera camera, float blendTime = 0f)
+        public void OverlapCamera(CinemachineCamera overlapCamera, float blendTime = 0f)
         {
-            if(_currentCamera)
-            {
+            if (_currentCamera) 
                 _currentCamera.Priority = -1;
-                _previousCamera = _currentCamera;
-            }
             
-            _currentCamera = camera;
+            _stack.Push(overlapCamera);
+            _currentCamera = overlapCamera;
             _currentCamera.Priority = _mainPriority;
         }
 
         public void RemoveOverlappingCamera(float blendTime = 0f)
         {
-            if(_previousCamera)
-            {
-                var previousCamera = _previousCamera;
-                _previousCamera.Priority = -1;
-                
-                _currentCamera = _previousCamera;
-                _previousCamera = previousCamera;
-                
-                _currentCamera.Priority = _mainPriority;
-            }
+            if (_stack.Count <= 1) 
+                return;
+            
+            _currentCamera.Priority = -1;
+            _stack.Pop();
+            _currentCamera = _stack.Peek();
+            _currentCamera.Priority = _mainPriority;
         }
     }
 }

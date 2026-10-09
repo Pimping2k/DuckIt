@@ -21,17 +21,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Cardboard
-  m_Shader: {fileID: 4800000, guid: bee44b4a58655ee4cbff107302a3e131, type: 3}
+  m_Shader: {fileID: 4800000, guid: f7e38193b7f064d7380403618fd8b69e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - DR_CEL_EXTRA_ON
   - DR_RIM_ON
-  - _BASEMAP_PREMULTIPLY
+  - DR_SPECULAR_ON
   - _CELPRIMARYMODE_SINGLE
-  - _DETAILMAPBLENDINGMODE_MULTIPLY
-  - _GRADIENTSPACE_WORLD
-  - _OUTLINESPACE_SCREEN
   - _TEXTUREBLENDINGMODE_MULTIPLY
   - _UNITYSHADOWMODE_MULTIPLY
   m_InvalidKeywords: []
@@ -138,21 +135,21 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _FlatRimEdgeSmoothness: 0.55
+    - _FlatRimEdgeSmoothness: 0.749
     - _FlatRimLightAlign: 0.25
     - _FlatRimSize: 0.3
-    - _FlatSpecularEdgeSmoothness: 0
-    - _FlatSpecularSize: 0.1
+    - _FlatSpecularEdgeSmoothness: 1
+    - _FlatSpecularSize: 0
     - _Flatness: 1
     - _FlatnessExtra: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GradientAngle: 0
-    - _GradientCenterX: 0
-    - _GradientCenterY: 0
+    - _GradientAngle: 102
+    - _GradientCenterX: 1.48
+    - _GradientCenterY: -1.73
     - _GradientEnabled: 0
-    - _GradientSize: 10
+    - _GradientSize: 85.1
     - _GradientSpace: 0
     - _LightContribution: 0.7
     - _LightFalloffSize: 0.5
@@ -161,10 +158,10 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OutlineDepthOffset: 0
-    - _OutlineEnabled: 0
+    - _OutlineEnabled: 1
     - _OutlineScale: 1
     - _OutlineSpace: 0
-    - _OutlineWidth: 1
+    - _OutlineWidth: 2
     - _OverrideLightmapDir: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -176,7 +173,7 @@ Material:
     - _ShadowEdgeSizeExtra: 0.35
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
-    - _SpecularEnabled: 0
+    - _SpecularEnabled: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
@@ -192,19 +189,19 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.764151, g: 0.32719004, b: 0.075694196, a: 1}
     - _Color: {r: 0, g: 0, b: 0, a: 0}
-    - _ColorDim: {r: 0.7882353, g: 0.5882353, b: 0.5490196, a: 1}
-    - _ColorDimCurve: {r: 0.7882353, g: 0.5882353, b: 0.5490196, a: 1}
-    - _ColorDimExtra: {r: 0.6392157, g: 0.4392157, b: 0.4156863, a: 0.85056}
-    - _ColorDimSteps: {r: 0.7882353, g: 0.5882353, b: 0.5490196, a: 1}
-    - _ColorGradient: {r: 0.85023, g: 0.85034, b: 0.85045, a: 0.85056}
+    - _ColorDim: {r: 0.8490566, g: 0.5908336, b: 0.16420433, a: 1}
+    - _ColorDimCurve: {r: 0.8509804, g: 0.5921569, b: 0.16470589, a: 1}
+    - _ColorDimExtra: {r: 0.6392157, g: 0.43921566, b: 0.41568628, a: 1}
+    - _ColorDimSteps: {r: 0.8509804, g: 0.5921569, b: 0.16470589, a: 1}
+    - _ColorGradient: {r: 1, g: 0.7750001, b: 0, a: 0.85056}
     - _DetailMapColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FlatRimColor: {r: 0.8509804, g: 0.6, b: 0.3803922, a: 1}
-    - _FlatSpecularColor: {r: 0.85023, g: 0.85034, b: 0.85045, a: 0.85056}
+    - _FlatRimColor: {r: 0.8562049, g: 0.7738964, b: 0.8773585, a: 1}
+    - _FlatSpecularColor: {r: 2.828427, g: 2.828427, b: 2.828427, a: 1}
     - _LightmapDirection: {r: 0, g: 1, b: 0, a: 0}
-    - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _UnityShadowColor: {r: 0.5803922, g: 0.4196078, b: 0.4470588, a: 0.85056}
   m_BuildTextureStacks: []
