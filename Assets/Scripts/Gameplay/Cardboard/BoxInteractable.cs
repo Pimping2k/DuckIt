@@ -6,10 +6,12 @@ using DG.Tweening;
 using EventSub;
 using EventSub.Implementation;
 using Extensions;
+using ExternPropertyAttributes;
 using Gameplay.Interaction;
 using Gameplay.Tools;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
+using Restorable;
 using UnityEngine;
 using View;
 
@@ -20,7 +22,9 @@ namespace Gameplay.Cardboard
         Initial,
         Moved,
         Opened,
-        Finish,
+        Readen,
+        Empty,
+        Finished
     }
     
     [Serializable]
@@ -38,9 +42,12 @@ namespace Gameplay.Cardboard
         [SerializeField] private Transform _startPoint;
         [SerializeField] private Transform _endPoint;
         [SerializeField] private FlapPose[] _flaps;
+        [HorizontalLine] 
+        [SerializeField] private Transform _itemPosition;
         
         private PlacementManager _placementManager;
 
+        private RestorableItem _currentRestorableItem;
         private bool _isBusy;
         private BoxState _state;
 
@@ -61,11 +68,14 @@ namespace Gameplay.Cardboard
         private void Awake()
         {
             _placementManager = ServiceLocator.Resolve<PlacementManager>();
+            Setup(_config);
         }
-
+        
         public void Setup(BoxConfig config)
         {
             Config = config;
+            var instance = Instantiate(Config.ItemPrefab, _itemPosition.position, _itemPosition.localRotation, transform);
+            _currentRestorableItem = instance;
         }
         
         protected override void OnInteracted()
@@ -86,8 +96,11 @@ namespace Gameplay.Cardboard
                 case BoxState.Moved:
                     PerformOpenBox();
                     break;
-                case BoxState.Finish:
-                    EventBus.Publish(new RequestViewEvent(ViewType.BoxNote, _config));
+                case BoxState.Opened:
+                    PerformReadEnvelope();
+                    break;
+                case BoxState.Readen:
+                    PerformGetItem();
                     break;
             }
         }
@@ -95,7 +108,7 @@ namespace Gameplay.Cardboard
         private void PerformMove()
         {
             _isBusy = true;
-            var targetPosition = _placementManager.Positions.GetRandomValue();
+            var targetPosition = _placementManager.BoxPositions.GetRandomValue();
             var targetObject = transform;
 
             Animations.LaunchBox(targetObject, targetPosition).OnComplete(() =>
@@ -130,7 +143,23 @@ namespace Gameplay.Cardboard
             Animations.OpenBoxFlaps(gameObject, _flaps).OnComplete(() =>
             {
                 _isBusy = false;
-                _state = BoxState.Finish;
+                State = BoxState.Opened;
+            });
+        }
+
+        private void PerformReadEnvelope()
+        {
+            EventBus.Publish(new RequestViewEvent(ViewType.BoxNote, _config));
+            State = BoxState.Readen;
+        }
+        
+        private void PerformGetItem()
+        {
+            _isBusy = true;
+            Animations.ExtractItemFromBox(_currentRestorableItem.transform, _itemPosition, _placementManager.ItemPositions.GetRandomValue()).OnComplete(() =>
+            {
+                _isBusy = false;
+                State = BoxState.Empty;
             });
         }
 

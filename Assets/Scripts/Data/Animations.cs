@@ -46,5 +46,49 @@ namespace Data
 
             return seq;
         }
+        
+        public static Sequence ExtractItemFromBox(Transform item, Transform startPoint, Transform target, float clearanceHeight = 0.4f)
+        {
+            var baseScale = item.localScale;
+
+            item.SetParent(null);
+            return DOTween.Sequence().SetTarget(item).SetLink(item.gameObject)
+                .Append(item.DOLocalRotate(Vector3.zero, 0.1f))
+                .Append(item.DOMove(startPoint.position, 0f))
+                .Join(item.DORotateQuaternion(startPoint.rotation, 0f))
+                
+                .Append(item.DOMoveY(startPoint.position.y + clearanceHeight, 0.25f).SetEase(Ease.OutQuad))
+                
+                .Append(item.DOMove(target.position, 0.5f).SetEase(Ease.InOutSine))
+                .Join(item.DORotateQuaternion(target.rotation, 0.5f).SetEase(Ease.InOutSine))
+                
+                .Append(item.DOScale(baseScale * 1.06f, 0.1f).SetEase(Ease.OutQuad))
+                .Append(item.DOScale(baseScale, 0.15f).SetEase(Ease.OutBack));
+        }
+        
+        public static Sequence ThrowBoxOffTable(Transform box, Transform target, float arcHeight = 2.5f, float duration = 0.65f)
+        {
+            var baseScale = box.localScale;
+            
+            Vector3 randomTumble = new Vector3(
+                Random.Range(-120f, 120f),
+                Random.Range(-360f, 360f),
+                Random.Range(-120f, 120f)
+            );
+            
+            float impactPunch = Random.Range(15f, 25f) * (Random.value > 0.5f ? 1f : -1f);
+
+            return DOTween.Sequence().SetTarget(box).SetLink(box.gameObject)
+                .Append(box.DOScale(Vector3.Scale(baseScale, new Vector3(0.95f, 1.08f, 0.95f)), 0.08f).SetEase(Ease.OutQuad))
+                
+                .Append(box.DOJump(target.position, arcHeight, 1, duration).SetEase(Ease.OutQuad))
+                .Join(box.DORotate(box.eulerAngles + randomTumble, duration, RotateMode.FastBeyond360).SetEase(Ease.InQuad))
+                
+                .Append(box.DOScale(Vector3.Scale(baseScale, new Vector3(1.25f, 0.75f, 1.25f)), 0.06f))
+                
+                .Append(box.DOScale(baseScale, 0.15f).SetEase(Ease.OutBack))
+                
+                .Join(box.DOPunchRotation(new Vector3(impactPunch, 0, impactPunch * 0.6f), 0.3f, 10, 0.5f));
+        }
     }
 }

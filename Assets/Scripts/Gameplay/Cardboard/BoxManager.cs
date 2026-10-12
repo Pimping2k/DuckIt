@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Data;
+using DG.Tweening;
 using MyPackage.Runtime.ServiceLocator_Core;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 namespace Gameplay.Cardboard
@@ -9,8 +12,14 @@ namespace Gameplay.Cardboard
     {
         [SerializeField] private BoxInteractable _boxPrefab;
         [SerializeField] private Transform _boxSpawnPosition;
+        [SerializeField] private Transform _boxThrowAway;
         
         private readonly List<BoxInteractable> _boxes = new();
+
+        private void Awake()
+        {
+            RequestBox();
+        }
 
         private void OnDestroy()
         {
@@ -31,10 +40,14 @@ namespace Gameplay.Cardboard
         
         private void OnBoxStateChanged(BoxInteractable box,BoxState state)
         {
-            if (state == BoxState.Opened)
+            if (state == BoxState.Empty)
             {
-                _boxes.Remove(box);
-                box.OnStateChange -= OnBoxStateChanged;
+                Animations.ThrowBoxOffTable(box.transform, _boxThrowAway).OnComplete(() =>
+                {
+                    _boxes.Remove(box);
+                    box.OnStateChange -= OnBoxStateChanged;
+                    Destroy(box.gameObject);
+                });
             }
         }
     }

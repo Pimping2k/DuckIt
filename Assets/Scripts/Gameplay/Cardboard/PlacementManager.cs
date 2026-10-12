@@ -7,8 +7,10 @@ namespace Gameplay.Cardboard
 {
     public class PlacementManager : MonoBehaviour, IService
     {
-        [SerializeField] private List<Transform> _positions = new();
-
-        public List<Transform> Positions => _positions;
+        [SerializeField] private List<Transform> _boxPositions = new();
+        [SerializeField] private List<Transform> _itemPositions = new();
+        
+        public List<Transform> BoxPositions => _boxPositions;
+        public List<Transform> ItemPositions => _itemPositions;
     }
 }

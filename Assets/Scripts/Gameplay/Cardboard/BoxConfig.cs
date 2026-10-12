@@ -1,4 +1,5 @@
 ﻿using Data;
+using Restorable;
 using UnityEngine;
 
 namespace Gameplay.Cardboard
@@ -7,7 +8,9 @@ namespace Gameplay.Cardboard
     public class BoxConfig : ScriptableObject
     {
         [SerializeField] private string _noteText;
+        [SerializeField] private RestorableItem _itemPrefab;
         
         public string NoteText => _noteText;
+        public RestorableItem ItemPrefab => _itemPrefab;
     }
 }

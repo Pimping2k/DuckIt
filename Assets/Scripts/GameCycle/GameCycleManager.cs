@@ -27,6 +27,7 @@ namespace GameCycle
         private float _minuteTiming;
        
         public TimeData TimeData { get; private set; }
+        public GameCycleConfig Config => _config;
         
         public event Action<Season> SeasonChanged;
         public event Action<float> HourChanged;
