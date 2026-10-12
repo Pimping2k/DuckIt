@@ -103,7 +103,7 @@ Material:
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _CloudCoverage: 0.4
+    - _CloudCoverage: 0.25
     - _CloudDetail: 0.25
     - _CloudK: 0.15
     - _CloudOpacity: 0.85
@@ -133,14 +133,14 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _RimAmount: 2
-    - _SkyTime: 264058.38
+    - _SkyTime: 1709.709
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _StarsDensity: 140
-    - _StarsIntensity: 3.5
+    - _StarsIntensity: 3
     - _SunGlow: 0.7
     - _SunGlowTightness: 14
     - _SunSize: 0.05
@@ -150,20 +150,20 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _CloudColor: {r: 1, g: 0.78039217, b: 0.61960787, a: 1}
-    - _CloudLitColor: {r: 0.21558696, g: 0.16131455, b: 0.2410597, a: 0.8}
-    - _CloudShadeColor: {r: 0.08486356, g: 0.080353424, b: 0.1588046, a: 0.6}
+    - _CloudLitColor: {r: 1, g: 0.83901346, b: 0.6640993, a: 1.5}
+    - _CloudShadeColor: {r: 0.66672707, g: 0.28461716, b: 0.13166668, a: 0.85}
     - _CloudShadowColor: {r: 0.31999996, g: 0.24999997, b: 0.37999994, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GroundColor: {r: 0.45, g: 0.52, b: 0.45, a: 1}
-    - _HorizonColor: {r: 0.22810727, g: 0.19085094, b: 0.322877, a: 1}
-    - _HorizonGlowColor: {r: 0.22483921, g: 0.13529511, b: 0.22745213, a: 1}
-    - _MidColor: {r: 0.16143957, g: 0.14705974, b: 0.2781057, a: 1}
+    - _HorizonColor: {r: 1, g: 0.59607846, b: 0.28235295, a: 1}
+    - _HorizonGlowColor: {r: 0, g: 0, b: 0, a: 1}
+    - _MidColor: {r: 0.83414215, g: 0.39512867, b: 0.18431373, a: 1}
     - _MoonColor: {r: 0.9, g: 0.93, b: 1, a: 1}
-    - _MountainColor: {r: 0.1118962, g: 0.10366055, b: 0.19176538, a: 0.7}
+    - _MountainColor: {r: 0.43137255, g: 0.13725491, b: 0.050980393, a: 1.2}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SunColor: {r: 0.8039221, g: 0.32614452, b: 0.46862793, a: 1}
-    - _SunDir: {r: -0.9685831, g: -0.1044498, b: 0.22569224, a: 0}
-    - _ZenithColor: {r: 0.09477186, g: 0.10326853, b: 0.23333442, a: 1}
+    - _SunColor: {r: 1, g: 0.678027, b: 0.32819858, a: 1}
+    - _SunDir: {r: 0.7159365, g: 0.41889924, b: -0.55853236, a: 0}
+    - _ZenithColor: {r: 0.6682843, g: 0.19417885, b: 0.08627451, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

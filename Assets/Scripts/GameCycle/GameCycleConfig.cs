@@ -1,5 +1,7 @@
-﻿using Data;
+﻿using System.Numerics;
+using Data;
 using UnityEngine;
+using Vector2 = UnityEngine.Vector2;
 
 namespace GameCycle
 {
@@ -18,7 +20,9 @@ namespace GameCycle
         [SerializeField] private float _hourDuration;
         [SerializeField] private int _monthDaysDuration;
         [SerializeField] private Season _initialSeason;
+        [SerializeField] private Vector2 _timeRange;
 
+        public Vector2 TimeRange => _timeRange;
         public float DayDuration => _dayDuration;
         public float HourDuration => _hourDuration;
         public int MonthDaysDuration => _monthDaysDuration;
