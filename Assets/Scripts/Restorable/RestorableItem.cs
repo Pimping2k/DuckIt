@@ -267,7 +267,8 @@ namespace Restorable
         /// wearSub: насколько тул берёт каждый слой = (пыль, грязь, старая краска, ржавчина), 0..1.
         /// paintAdd: что тул наносит = (новая краска, лак), 0..1.
         /// gateByWear: не наносить там, где виден износ (пыль, грязь, ржавчина).
-        public void Stroke(Vector2 uv, float uvRadius, float hardness, float strength, Vector4 wearSub, Vector2 paintAdd, bool gateByWear) {
+        public void Stroke(Vector2 uv, float uvRadius, float hardness, float strength, Vector4 wearSub, Vector2 paintAdd, bool gateByWear)
+        {
             if (!IsReady) 
                 return;
             

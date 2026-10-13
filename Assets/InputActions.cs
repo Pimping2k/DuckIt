@@ -1097,6 +1097,94 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Cleaning"",
+            ""id"": ""d2fd63d9-5309-46c1-8aba-1b202709412b"",
+            ""actions"": [
+                {
+                    ""name"": ""MainAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""2487b138-f339-46e1-ba0c-a2293e8c6c39"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SecondaryAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""3a6e9ef8-f377-4b34-a654-a70949ee2ada"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Back"",
+                    ""type"": ""Button"",
+                    ""id"": ""9b2cbd3e-d99c-43f5-bded-67b92f384003"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Rotating"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""03262692-924b-4f99-bc46-e76062f82ad0"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""ebfac832-8e01-48fe-aa24-de8c9dbe7723"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SecondaryAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""920a6abd-353c-4cac-ab98-5a9ede4995f0"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""MainAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""191fe07a-c574-4f16-bbca-d94a900e74e7"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Back"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b1bcb6cd-8c6c-420b-b4a2-a6f28324f580"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Rotating"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1186,12 +1274,19 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_UI_ScrollWheel = m_UI.FindAction("ScrollWheel", throwIfNotFound: true);
         m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
+        // Cleaning
+        m_Cleaning = asset.FindActionMap("Cleaning", throwIfNotFound: true);
+        m_Cleaning_MainAction = m_Cleaning.FindAction("MainAction", throwIfNotFound: true);
+        m_Cleaning_SecondaryAction = m_Cleaning.FindAction("SecondaryAction", throwIfNotFound: true);
+        m_Cleaning_Back = m_Cleaning.FindAction("Back", throwIfNotFound: true);
+        m_Cleaning_Rotating = m_Cleaning.FindAction("Rotating", throwIfNotFound: true);
     }
 
     ~@InputActions()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputActions.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputActions.UI.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Cleaning.enabled, "This will cause a leak and performance issues, InputActions.Cleaning.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1653,6 +1748,135 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="UIActions" /> instance referencing this action map.
     /// </summary>
     public UIActions @UI => new UIActions(this);
+
+    // Cleaning
+    private readonly InputActionMap m_Cleaning;
+    private List<ICleaningActions> m_CleaningActionsCallbackInterfaces = new List<ICleaningActions>();
+    private readonly InputAction m_Cleaning_MainAction;
+    private readonly InputAction m_Cleaning_SecondaryAction;
+    private readonly InputAction m_Cleaning_Back;
+    private readonly InputAction m_Cleaning_Rotating;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Cleaning".
+    /// </summary>
+    public struct CleaningActions
+    {
+        private @InputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public CleaningActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/MainAction".
+        /// </summary>
+        public InputAction @MainAction => m_Wrapper.m_Cleaning_MainAction;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/SecondaryAction".
+        /// </summary>
+        public InputAction @SecondaryAction => m_Wrapper.m_Cleaning_SecondaryAction;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/Back".
+        /// </summary>
+        public InputAction @Back => m_Wrapper.m_Cleaning_Back;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/Rotating".
+        /// </summary>
+        public InputAction @Rotating => m_Wrapper.m_Cleaning_Rotating;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Cleaning; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="CleaningActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(CleaningActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="CleaningActions" />
+        public void AddCallbacks(ICleaningActions instance)
+        {
+            if (instance == null || m_Wrapper.m_CleaningActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_CleaningActionsCallbackInterfaces.Add(instance);
+            @MainAction.started += instance.OnMainAction;
+            @MainAction.performed += instance.OnMainAction;
+            @MainAction.canceled += instance.OnMainAction;
+            @SecondaryAction.started += instance.OnSecondaryAction;
+            @SecondaryAction.performed += instance.OnSecondaryAction;
+            @SecondaryAction.canceled += instance.OnSecondaryAction;
+            @Back.started += instance.OnBack;
+            @Back.performed += instance.OnBack;
+            @Back.canceled += instance.OnBack;
+            @Rotating.started += instance.OnRotating;
+            @Rotating.performed += instance.OnRotating;
+            @Rotating.canceled += instance.OnRotating;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="CleaningActions" />
+        private void UnregisterCallbacks(ICleaningActions instance)
+        {
+            @MainAction.started -= instance.OnMainAction;
+            @MainAction.performed -= instance.OnMainAction;
+            @MainAction.canceled -= instance.OnMainAction;
+            @SecondaryAction.started -= instance.OnSecondaryAction;
+            @SecondaryAction.performed -= instance.OnSecondaryAction;
+            @SecondaryAction.canceled -= instance.OnSecondaryAction;
+            @Back.started -= instance.OnBack;
+            @Back.performed -= instance.OnBack;
+            @Back.canceled -= instance.OnBack;
+            @Rotating.started -= instance.OnRotating;
+            @Rotating.performed -= instance.OnRotating;
+            @Rotating.canceled -= instance.OnRotating;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="CleaningActions.UnregisterCallbacks(ICleaningActions)" />.
+        /// </summary>
+        /// <seealso cref="CleaningActions.UnregisterCallbacks(ICleaningActions)" />
+        public void RemoveCallbacks(ICleaningActions instance)
+        {
+            if (m_Wrapper.m_CleaningActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="CleaningActions.AddCallbacks(ICleaningActions)" />
+        /// <seealso cref="CleaningActions.RemoveCallbacks(ICleaningActions)" />
+        /// <seealso cref="CleaningActions.UnregisterCallbacks(ICleaningActions)" />
+        public void SetCallbacks(ICleaningActions instance)
+        {
+            foreach (var item in m_Wrapper.m_CleaningActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_CleaningActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="CleaningActions" /> instance referencing this action map.
+    /// </summary>
+    public CleaningActions @Cleaning => new CleaningActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -1873,5 +2097,41 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Cleaning" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="CleaningActions.AddCallbacks(ICleaningActions)" />
+    /// <seealso cref="CleaningActions.RemoveCallbacks(ICleaningActions)" />
+    public interface ICleaningActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "MainAction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMainAction(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SecondaryAction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryAction(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Back" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Rotating" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotating(InputAction.CallbackContext context);
     }
 }

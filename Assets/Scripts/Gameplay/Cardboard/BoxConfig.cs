@@ -8,9 +8,9 @@ namespace Gameplay.Cardboard
     public class BoxConfig : ScriptableObject
     {
         [SerializeField] private string _noteText;
-        [SerializeField] private RestorableItem _itemPrefab;
+        [SerializeField] private RestorableInteractable _itemPrefab;
         
         public string NoteText => _noteText;
-        public RestorableItem ItemPrefab => _itemPrefab;
+        public RestorableInteractable ItemPrefab => _itemPrefab;
     }
 }

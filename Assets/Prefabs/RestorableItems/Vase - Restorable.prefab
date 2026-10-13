@@ -42,7 +42,10 @@ GameObject:
   m_Component:
   - component: {fileID: 4137211938178116055}
   - component: {fileID: 4607559651684818840}
-  m_Layer: 0
+  - component: {fileID: 1626635262405797918}
+  - component: {fileID: 5563700982228261570}
+  - component: {fileID: 3274143759603168552}
+  m_Layer: 6
   m_Name: Vase - Restorable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,11 +82,60 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   preset: {fileID: 11400000, guid: d2ab5df715e47564e937f9af3ecd5778, type: 2}
   newPaintColor: {r: 0.8867924, g: 0.69855815, b: 0.73384917, a: 1}
-  maskSize: 512
+  maskSize: 1024
   toonShader: {fileID: 4800000, guid: bdf354f2858f68045a3022d6893690d4, type: 3}
   stampShader: {fileID: 4800000, guid: 98e3351e6416e0c438dd7dddc6a5ca76, type: 3}
   targetRenderer: {fileID: 24993482424142552}
   meshFilter: {fileID: 2863229680549871122}
+--- !u!114 &1626635262405797918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516205573895239944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 789977e348e445f886c9263654bb72a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _outlinable: {fileID: 5563700982228261570}
+  _restorableComponent: {fileID: 4607559651684818840}
+--- !u!114 &5563700982228261570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516205573895239944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac31b2d5468b485ebb2a606b3260ff78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _outlinableRenderers:
+  - {fileID: 24993482424142552}
+--- !u!65 &3274143759603168552
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516205573895239944}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5, y: 1, z: 0.5}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1001 &1700494587312068188
 PrefabInstance:
   m_ObjectHideFlags: 0

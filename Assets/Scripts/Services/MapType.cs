@@ -4,5 +4,6 @@ namespace Services
     {
         Gameplay,
         UI,
+        Cleaning,
     }
 }

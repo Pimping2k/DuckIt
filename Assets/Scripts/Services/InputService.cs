@@ -10,6 +10,7 @@ namespace Services
         public InputActions InputSystem { get; private set; }
         public InputActions.UIActions UI { get; private set; }
         public InputActions.PlayerActions Player { get; private set; }
+        public InputActions.CleaningActions Cleaning { get; private set; }
         public event Action MapChanged;
         public bool IsReady { get; private set; }
 
@@ -20,6 +21,7 @@ namespace Services
             
             UI = InputSystem.UI;
             Player = InputSystem.Player;
+            Cleaning = InputSystem.Cleaning;
             
             InputSystem.Enable();
             IsReady = true;
@@ -34,6 +36,7 @@ namespace Services
 
         public void ChangeMap(MapType mapType)
         {
+            InputSystem.Cleaning.Disable();
             InputSystem.Player.Disable();
             InputSystem.UI.Disable();
             MapType = mapType;
@@ -42,6 +45,11 @@ namespace Services
             {
                 case MapType.Gameplay:
                     InputSystem.Player.Enable();
+                    CursorMode = CursorLockMode.Locked;
+                    break;
+            
+                case MapType.Cleaning:
+                    InputSystem.Cleaning.Enable();
                     CursorMode = CursorLockMode.Locked;
                     break;
                 

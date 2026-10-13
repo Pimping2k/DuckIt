@@ -90,5 +90,15 @@ namespace Data
                 
                 .Join(box.DOPunchRotation(new Vector3(impactPunch, 0, impactPunch * 0.6f), 0.3f, 10, 0.5f));
         }
+        
+        public static Sequence SnapItem(Transform item, Transform targetPoint)
+        {
+            if(!Equals(targetPoint, item))
+                item.SetParent(targetPoint);
+
+            return DOTween.Sequence().SetTarget(item).SetLink(item.gameObject)
+                .Append(item.DOMove(targetPoint.position, 0.3f))
+                .Append(item.DORotateQuaternion(targetPoint.rotation, 0.1f));
+        }
     }
 }

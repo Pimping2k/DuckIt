@@ -47,7 +47,7 @@ namespace Gameplay.Cardboard
         
         private PlacementManager _placementManager;
 
-        private RestorableItem _currentRestorableItem;
+        private RestorableInteractable _currentRestorableItem;
         private bool _isBusy;
         private BoxState _state;
 
@@ -70,12 +70,13 @@ namespace Gameplay.Cardboard
             _placementManager = ServiceLocator.Resolve<PlacementManager>();
             Setup(_config);
         }
-        
+
         public void Setup(BoxConfig config)
         {
             Config = config;
             var instance = Instantiate(Config.ItemPrefab, _itemPosition.position, _itemPosition.localRotation, transform);
             _currentRestorableItem = instance;
+            _currentRestorableItem.ToggleInteractableState(false);
         }
         
         protected override void OnInteracted()
@@ -158,6 +159,7 @@ namespace Gameplay.Cardboard
             _isBusy = true;
             Animations.ExtractItemFromBox(_currentRestorableItem.transform, _itemPosition, _placementManager.ItemPositions.GetRandomValue()).OnComplete(() =>
             {
+                _currentRestorableItem.ToggleInteractableState(true);
                 _isBusy = false;
                 State = BoxState.Empty;
             });
