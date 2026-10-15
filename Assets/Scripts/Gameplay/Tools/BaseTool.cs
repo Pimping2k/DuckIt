@@ -20,7 +20,7 @@ namespace Gameplay.Tools
         Screwdriver = 7,
     }
     
-    public abstract class BaseTool : Interactable
+    public abstract class BaseTool : MonoBehaviour
     {
         [SerializeField] private ToolType _type;
         [SerializeField] private RestoreTool _restoreToolType;
@@ -41,33 +41,6 @@ namespace Gameplay.Tools
         private void Start()
         {
             PlayerToolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
-        }
-
-        protected override void OnInteracted()
-        {
-            if(PlayerToolController.CurrentTool?.Type == _type)
-                return;
-            
-            PlayerToolController.CurrentTool?.OnDropped();
-            OnPickedUp();
-        }
-
-        private void SetPhysicsActive(bool active)
-        {
-            foreach (var c in _colliders) 
-                c.enabled = active;
-        }
-
-        public virtual void OnPickedUp()
-        {
-            SetPhysicsActive(false);
-            PlayerToolController.SetTool(this);
-        }
-
-        public virtual void OnDropped()
-        {
-            PlayerToolController.SetTool(null);
-            SetPhysicsActive(true);
         }
 
         public abstract void Use(Ray ray, bool pressed, float dt);

@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c41ae8108d7bc647956120405550e33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  preset: {fileID: 11400000, guid: d2ab5df715e47564e937f9af3ecd5778, type: 2}
+  preset: {fileID: 11400000, guid: 4120154967134e02a16b5749b3fd5da9, type: 2}
   newPaintColor: {r: 0.8867924, g: 0.69855815, b: 0.73384917, a: 1}
   maskSize: 1024
   toonShader: {fileID: 4800000, guid: bdf354f2858f68045a3022d6893690d4, type: 3}
@@ -212,3 +212,4 @@ MeshFilter:
   m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 0ce83c9cb0a57734a9f43bb584998ea7, type: 3}
   m_PrefabInstance: {fileID: 1700494587312068188}
   m_PrefabAsset: {fileID: 0}
+

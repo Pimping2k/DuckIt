@@ -11,6 +11,7 @@ namespace Restorable
         Wash,     // губка: пыль, грязь
         Scrape,   // скребок: старая краска
         Sand,     // шкурка: старая краска, ржавчина
+        Peel,     // пинцет: отходящие края старой краски
         Paint,
         Varnish
     }
@@ -24,6 +25,11 @@ namespace Restorable
         [Header("Main")]
         public WearPreset preset;
         public Color newPaintColor = new Color(0.55f, 0.80f, 0.75f);
+
+        [Tooltip("0 = новый рисунок при создании. Сохраняйте выданное значение вместе с предметом; одинаковый seed воспроизводит износ.")]
+        public int wearSeed;
+        WearLayer[] _layers;
+        Vector3[] _wearOffsets;
 
         [Header("Quality")]
         public int maskSize = 512;
@@ -44,7 +50,6 @@ namespace Restorable
         /// Доля новой краски, лежащей на нетронутой старой
         public float OverPaintRatio { get; private set; }
         public bool UseUV0 { get; private set; }
-        public bool IsReady { get; private set; }   // ← добавить
 
         public float GetLayerCleaned(WearKind kind) => LayerCleaned[(int)kind];
 
@@ -52,7 +57,6 @@ namespace Restorable
 
         const int SmallSize = 64;
 
-        public const string PaintLayerName = "Restorable";
         static readonly int BaseMapId    = Shader.PropertyToID("_BaseMap");
         static readonly int BaseColorId  = Shader.PropertyToID("_BaseColor");
         static readonly int WearMaskId   = Shader.PropertyToID("_WearMask");
@@ -72,6 +76,10 @@ namespace Restorable
         static readonly int AddId        = Shader.PropertyToID("_Add");
         static readonly int SubId        = Shader.PropertyToID("_Sub");
         static readonly int GateTexId    = Shader.PropertyToID("_GateTex");
+        static readonly int WetTexId     = Shader.PropertyToID("_WetTex");
+        static readonly int NeedWetId    = Shader.PropertyToID("_NeedWet");
+        static readonly int PeelId       = Shader.PropertyToID("_Peel");
+        static readonly int DecayId      = Shader.PropertyToID("_Decay");
 
         RenderTexture _wearA, _wearB, _paintA, _paintB, _small;
         Material _mat, _stamp;
@@ -83,60 +91,51 @@ namespace Restorable
         readonly int[] _init = new int[4];
         bool _needRead, _initCounted;
         float _nextRead;
+        float _wetUntil, _nextDry;
 
         void Reset()
         {
             toonShader = Shader.Find("Restoration/ToonRestorable");
             stampShader = Shader.Find("Hidden/Restoration/Stamp");
         }
-        
-        void OnValidate() => maskSize = ValidMaskSize(maskSize);
-        static int ValidMaskSize(int v) => Mathf.Max(SmallSize, Mathf.ClosestPowerOfTwo(v));
-
-        bool TryResolveTargets(out Mesh mesh)
-        {
-            mesh = null;
-            if (targetRenderer == null) targetRenderer = GetComponentInChildren<Renderer>();
-            if (targetRenderer == null)
-            {
-                Debug.LogError($"{name}: не найден Renderer", this);
-                return false;
-            }
-
-            if (meshFilter == null) meshFilter = targetRenderer.GetComponent<MeshFilter>();
-            if (meshFilter == null || meshFilter.sharedMesh == null)
-            {
-                Debug.LogError($"{name}: нужен MeshRenderer + MeshFilter с мешем (SkinnedMeshRenderer не поддерживается)", this);
-                return false;
-            }
-
-            mesh = meshFilter.sharedMesh;
-            return true;
-        }
 
         void Awake()
         {
-            if (!TryResolveTargets(out var mesh)) 
-            { 
-                enabled = false; 
-                return;
-            }
-            maskSize = ValidMaskSize(maskSize);
-
-            if (toonShader == null) toonShader = Shader.Find("Restoration/ToonRestorable");
-            if (stampShader == null) stampShader = Shader.Find("Hidden/Restoration/Stamp");
-            if (preset == null) preset = ScriptableObject.CreateInstance<WearPreset>();
-
-            UseUV0 = !mesh.HasVertexAttribute(VertexAttribute.TexCoord1);
-            if (UseUV0 && !mesh.HasVertexAttribute(VertexAttribute.TexCoord0))
+            if (targetRenderer == null) targetRenderer = GetComponentInChildren<Renderer>();
+            if (targetRenderer == null)
             {
-                Debug.LogError($"{name}: у меша нет ни UV0, ни UV1", this);
+                Debug.LogError("RestorableItem: не найден Renderer.", this);
                 enabled = false;
                 return;
             }
+            if (meshFilter == null) meshFilter = targetRenderer.GetComponent<MeshFilter>();
+            if (toonShader == null) toonShader = Shader.Find("Restoration/ToonRestorable");
+            if (stampShader == null) stampShader = Shader.Find("Hidden/Restoration/Stamp");
+            if (meshFilter == null || meshFilter.sharedMesh == null || toonShader == null || stampShader == null)
+            {
+                Debug.LogError("RestorableItem: нужны MeshFilter с мешем и оба шейдера реставрации.", this);
+                enabled = false;
+                return;
+            }
+            maskSize = Mathf.Clamp(maskSize, SmallSize, 2048);
+            if (preset == null)
+            {
+                preset = ScriptableObject.CreateInstance<WearPreset>();
+                _ownsPreset = true;
+            }
 
-            SetupPaintCollider(mesh);
+            var mesh = meshFilter.sharedMesh;
+            UseUV0 = !mesh.HasVertexAttribute(VertexAttribute.TexCoord1);
+            if (UseUV0)
+                Debug.LogWarning($"{name}: у меша нет UV1, маска рисуется по UV0 (нужна развёртка без перекрытий).", this);
+
+            InitializeWear();
+            SetupCollider(mesh);
             SetupMaterial();
+            float dimension = Mathf.Max(0.0001f, Mathf.Max(mesh.bounds.size.x, Mathf.Max(mesh.bounds.size.y, mesh.bounds.size.z)));
+            Vector3 origin = -mesh.bounds.min / dimension;
+            _mat.SetVector("_WearCoordinates", new Vector4(origin.x, origin.y, origin.z, 1f / dimension));
+            _mat.SetVector("_WearDetailOffset", _wearOffsets[0]);
 
             _stamp = new Material(stampShader);
             _wearA = CreateMask();
@@ -148,21 +147,18 @@ namespace Restorable
             _readTex = new Texture2D(SmallSize, SmallSize, TextureFormat.RGBA32, false, true);
             _oldOn = new bool[SmallSize * SmallSize];
 
-            var surface = BuildSurface(mesh, maskSize, UseUV0);
-            BuildInitialMask(surface);
-            BuildSmallSurface(surface);
+            var data = BuildSurfaceData(mesh, maskSize, UseUV0, preset.edgeWidth);
+            BuildInitialMask(data);
+            BuildSmallSurface(data.on);
 
             _mat.SetTexture(WearMaskId, _wearA);
             _mat.SetTexture(PaintMaskId, _paintA);
             ReadProgress();
-            _mat.SetTexture(WearMaskId, _wearA);
-            _mat.SetTexture(PaintMaskId, _paintA);
-            ReadProgress();
-            IsReady = true;
         }
 
         void OnDestroy()
         {
+            if (_ownsPreset && preset) Destroy(preset);
             if (_wearA) _wearA.Release();
             if (_wearB) _wearB.Release();
             if (_paintA) _paintA.Release();
@@ -173,25 +169,45 @@ namespace Restorable
             if (_mat) Destroy(_mat);
         }
 
+        bool _ownsPreset;
+
         // ---------------------------------------------------------------------
         // Автонастройка
         // ---------------------------------------------------------------------
-        void SetupPaintCollider(Mesh mesh)
+        void InitializeWear()
         {
-            var go = new GameObject("PaintCollider");
-            go.transform.SetParent(targetRenderer.transform, false);
+            if (wearSeed == 0)
+                wearSeed = (Guid.NewGuid().GetHashCode() & int.MaxValue) | 1;
+            _layers = new WearLayer[4];
+            _wearOffsets = new Vector3[4];
+            for (int k = 0; k < 4; k++)
+            {
+                var random = new System.Random(unchecked(wearSeed + k * 486187739));
+                _layers[k] = preset.Get((WearKind)k).CreateVariation(random,
+                    preset.coverageVariation, preset.scaleVariation, preset.toneVariation);
+                _wearOffsets[k] = new Vector3((float)random.NextDouble(), (float)random.NextDouble(),
+                    (float)random.NextDouble()) * 100f + Vector3.one * 10f;
+            }
+        }
 
-            int layer = LayerMask.NameToLayer(PaintLayerName);
-            if (layer >= 0) go.layer = layer;
-            else Debug.LogWarning($"Нет слоя \"{PaintLayerName}\", PaintCollider остаётся на слое родителя", this);
+        void SetupCollider(Mesh mesh)
+        {
+            var go = targetRenderer.gameObject;
+            var mc = go.GetComponent<MeshCollider>();
+            if (mc == null) mc = go.AddComponent<MeshCollider>();
+            mc.sharedMesh = mesh;
+            mc.convex = false;
 
-            go.AddComponent<MeshCollider>().sharedMesh = mesh;
+            // Box/Sphere и прочие не отдают UV, чтобы они не перехватывали луч, отключаем их
+            foreach (var c in go.GetComponents<Collider>())
+                if (c != mc) c.enabled = false;
         }
 
         void SetupMaterial()
         {
             var src = targetRenderer.sharedMaterial;
-            _mat = new Material(toonShader) { name = (src ? src.name : "Item") + " (Restorable)" };
+            _mat = src && src.shader == toonShader ? new Material(src) : new Material(toonShader);
+            _mat.name = (src ? src.name : "Item") + " (Restorable)";
 
             if (src != null)
             {
@@ -208,13 +224,17 @@ namespace Restorable
 
                 if (src.HasProperty("_BaseColor")) _mat.SetColor(BaseColorId, src.GetColor("_BaseColor"));
                 else if (src.HasProperty("_Color")) _mat.SetColor(BaseColorId, src.GetColor("_Color"));
+                if (src.shader != toonShader && src.HasProperty("_Smoothness"))
+                    _mat.SetFloat("_BareGloss", Mathf.Lerp(0.04f, 0.28f, src.GetFloat("_Smoothness")));
             }
 
-            _mat.SetColor(DustColorId, preset.dust.color);
-            _mat.SetColor(DirtColorId, preset.dirt.color);
-            _mat.SetColor(OldPaintId, preset.oldPaint.color);
-            _mat.SetColor(RustColorId, preset.rust.color);
+            _mat.SetColor(DustColorId, _layers[0].color);
+            _mat.SetColor(DirtColorId, _layers[1].color);
+            _mat.SetColor(OldPaintId, _layers[2].color);
+            _mat.SetColor(RustColorId, _layers[3].color);
             _mat.SetColor(NewPaintId, newPaintColor);
+            _mat.SetFloat("_TexturedCoating", preset.texturedCoating && _layers[2].enabled ? 1f : 0f);
+            _mat.SetColor("_SubstrateColor", preset.substrateColor);
             _mat.SetFloat(MaskUVId, UseUV0 ? 0f : 1f);
 
             targetRenderer.sharedMaterial = _mat;
@@ -248,34 +268,55 @@ namespace Restorable
         /// Простой вариант (для тестовой RestorationBrush)
         public void Stroke(Vector2 uv, float uvRadius, RestoreTool tool, float strength, float hardness = 0.6f)
         {
-            Vector4 sub = Vector4.zero;
+            Vector4 sub = Vector4.zero, needWet = Vector4.zero;
             Vector2 add = Vector2.zero;
-            bool gate = false;
+            bool gate = false, peel = false;
+            float wet = 0f;
             switch (tool)
             {
-                case RestoreTool.Clean:   sub = new Vector4(1, 0, 0, 0); break;
-                case RestoreTool.Wash:    sub = new Vector4(1, 1, 0, 0); break;
-                case RestoreTool.Scrape:  sub = new Vector4(1, 1, 1, 0.25f); break;
-                case RestoreTool.Sand:    sub = new Vector4(1, 1, 0.6f, 1); break;
+                case RestoreTool.Clean:   sub = new Vector4(1, 0.15f, 0, 0); break;
+                case RestoreTool.Wash:    sub = new Vector4(1, 1, 0, 0); needWet = new Vector4(0, 1, 0, 0); wet = 3f; break;
+                case RestoreTool.Scrape:  sub = new Vector4(0, 0.4f, 1, 0.2f); break;
+                case RestoreTool.Sand:    sub = new Vector4(0, 0.3f, 0.6f, 1); break;
+                case RestoreTool.Peel:    sub = new Vector4(0, 0, 1, 0); peel = true; hardness = 0.9f; break;
                 case RestoreTool.Paint:   add = new Vector2(1, 0); gate = true; break;
                 case RestoreTool.Varnish: add = new Vector2(0, 1); gate = true; break;
             }
-            Stroke(uv, uvRadius, hardness, strength, sub, add, gate);
+            Stroke(uv, uvRadius, hardness, strength, sub, add, gate, wet, needWet, peel);
         }
 
         /// Универсальный вариант (под ToolProfile).
         /// wearSub: насколько тул берёт каждый слой = (пыль, грязь, старая краска, ржавчина), 0..1.
         /// paintAdd: что тул наносит = (новая краска, лак), 0..1.
-        /// gateByWear: не наносить там, где виден износ (пыль, грязь, ржавчина).
-        public void Stroke(Vector2 uv, float uvRadius, float hardness, float strength, Vector4 wearSub, Vector2 paintAdd, bool gateByWear)
+        /// gateByWear: не наносить краску и лак там, где виден износ.
+        /// wetAdd: сколько влаги оставляет тул (губка: около 3, остальные 0).
+        /// needWet: по слоям, какие отмываются только по мокрому (губка: грязь = (0,1,0,0)).
+        /// peel: пинцет, берёт только отходящие края слоя.
+        public void Stroke(Vector2 uv, float uvRadius, float hardness, float strength,
+            Vector4 wearSub, Vector2 paintAdd, bool gateByWear,
+            float wetAdd = 0f, Vector4 needWet = default, bool peel = false)
         {
-            if (!IsReady) 
-                return;
-            
             _stamp.SetVector(BrushUVId, uv);
             _stamp.SetFloat(RadiusId, uvRadius);
             _stamp.SetFloat(HardnessId, Mathf.Clamp(hardness, 0f, 0.99f));
             _stamp.SetFloat(StrengthId, strength);
+
+            // Сначала краска и влага: губка мочит и тут же отмывает
+            if (paintAdd != Vector2.zero || wetAdd > 0f)
+            {
+                _stamp.SetVector(AddId, new Vector4(paintAdd.x, paintAdd.y, wetAdd, 0));
+                _stamp.SetVector(SubId, Vector4.zero);
+                _stamp.SetFloat(GateId, gateByWear ? 1f : 0f);
+                _stamp.SetFloat(StackId, 0f);
+                _stamp.SetFloat(PeelId, 0f);
+                _stamp.SetVector(NeedWetId, Vector4.zero);
+                _stamp.SetTexture(GateTexId, _wearA);
+
+                Graphics.Blit(_paintA, _paintB, _stamp, 0);
+                (_paintA, _paintB) = (_paintB, _paintA);
+                _mat.SetTexture(PaintMaskId, _paintA);
+                if (wetAdd > 0f) _wetUntil = Time.time + 12f;
+            }
 
             if (wearSub != Vector4.zero)
             {
@@ -283,27 +324,25 @@ namespace Restorable
                 _stamp.SetVector(SubId, wearSub);
                 _stamp.SetFloat(GateId, 0f);
                 _stamp.SetFloat(StackId, preset.stacked ? 1f : 0f);
-                _stamp.SetTexture(GateTexId, _wearA);
+                _stamp.SetFloat(PeelId, peel ? 1f : 0f);
+                _stamp.SetVector(NeedWetId, needWet);
+                _stamp.SetTexture(WetTexId, _paintA);
 
-                Graphics.Blit(_wearA, _wearB, _stamp);
+                Graphics.Blit(_wearA, _wearB, _stamp, 0);
                 (_wearA, _wearB) = (_wearB, _wearA);
                 _mat.SetTexture(WearMaskId, _wearA);
             }
 
-            if (paintAdd != Vector2.zero)
-            {
-                _stamp.SetVector(AddId, new Vector4(paintAdd.x, paintAdd.y, 0, 0));
-                _stamp.SetVector(SubId, Vector4.zero);
-                _stamp.SetFloat(GateId, gateByWear ? 1f : 0f);
-                _stamp.SetFloat(StackId, 0f);
-                _stamp.SetTexture(GateTexId, _wearA);
-
-                Graphics.Blit(_paintA, _paintB, _stamp);
-                (_paintA, _paintB) = (_paintB, _paintA);
-                _mat.SetTexture(PaintMaskId, _paintA);
-            }
-
             _needRead = true;
+        }
+
+        // Влага высыхает: раз в четверть секунды убавляем канал B маски покрытия
+        void Dry()
+        {
+            _stamp.SetFloat(DecayId, 0.03f);
+            Graphics.Blit(_paintA, _paintB, _stamp, 1);
+            (_paintA, _paintB) = (_paintB, _paintA);
+            _mat.SetTexture(PaintMaskId, _paintA);
         }
 
         public void SetNewPaintColor(Color c)
@@ -314,6 +353,12 @@ namespace Restorable
 
         void Update()
         {
+            if (Time.time < _wetUntil && Time.time >= _nextDry)
+            {
+                _nextDry = Time.time + 0.25f;
+                Dry();
+            }
+
             if (_needRead && Time.unscaledTime >= _nextRead)
             {
                 _needRead = false;
@@ -346,10 +391,11 @@ namespace Restorable
                 _oldOn[i] = false;
                 if (!_surfaceSmall[i]) continue;
                 var c = d[i];
-                if (c.r > 127) _cnt[0]++;
-                if (c.g > 127) _cnt[1]++;
-                if (c.b > 127) { _cnt[2]++; _oldOn[i] = true; }
-                if (c.a > 127) _cnt[3]++;
+                _cnt[0] += c.r;
+                _cnt[1] += c.g;
+                _cnt[2] += c.b;
+                _cnt[3] += c.a;
+                _oldOn[i] = c.b > 127;
             }
 
             d = Read(_paintA);
@@ -371,7 +417,7 @@ namespace Restorable
             float totInit = 0f, totNow = 0f;
             for (int k = 0; k < 4; k++)
             {
-                LayerCleaned[k] = _init[k] > 0 ? 1f - _cnt[k] / (float)_init[k] : 1f;
+                LayerCleaned[k] = _init[k] > 0 ? Mathf.Clamp01(1f - _cnt[k] / (float)_init[k]) : 1f;
                 totInit += _init[k];
                 totNow += _cnt[k];
             }
@@ -384,106 +430,184 @@ namespace Restorable
         }
 
         // ---------------------------------------------------------------------
-        // Начальная маска из пресета
+        // Данные поверхности и начальная маска из пресета
         // ---------------------------------------------------------------------
-        static float Patchy(int x, int y, int size, float scale, float off, float coverage)
-        {
-            if (coverage <= 0f) return 0f;
-            float nx = x / (float)size * scale + off;
-            float ny = y / (float)size * scale + off;
-            float n = Mathf.PerlinNoise(nx, ny) * 0.7f + Mathf.PerlinNoise(nx * 2.3f + 7f, ny * 2.3f + 3f) * 0.3f;
-            float t = Mathf.Lerp(0.75f, 0.25f, coverage);
-            return Mathf.Clamp01((n - t) * 6f + 0.5f);
-        }
-
-        static byte LayerValue(WearLayer l, int x, int y, int size, float off)
-        {
-            if (!l.enabled) return 0;
-            if (l.solid) return 255;
-            return (byte)(Patchy(x, y, size, l.noiseScale, off, l.coverage) * 255f);
-        }
-
-        void BuildInitialMask(bool[] surface)
+        void BuildInitialMask(SurfaceData d)
         {
             int size = maskSize;
             var px = new Color32[size * size];
-            var layers = new[] { preset.dust, preset.dirt, preset.oldPaint, preset.rust };
-            var offs = new float[4];
-            for (int k = 0; k < 4; k++) offs[k] = UnityEngine.Random.value * 100f + k * 37f;
-
-            for (int y = 0; y < size; y++)
+            for (int i = 0; i < px.Length; i++)
             {
-                for (int x = 0; x < size; x++)
-                {
-                    int i = y * size + x;
-                    if (!surface[i]) { px[i] = new Color32(0, 0, 0, 0); continue; }
-
-                    px[i] = new Color32(
-                        LayerValue(layers[0], x, y, size, offs[0]),
-                        LayerValue(layers[1], x, y, size, offs[1]),
-                        LayerValue(layers[2], x, y, size, offs[2]),
-                        LayerValue(layers[3], x, y, size, offs[3]));
-                }
+                if (!d.on[i]) continue;
+                px[i] = new Color32(
+                    WearPatterns.Sample(_layers[0], d, i, _wearOffsets[0]),
+                    WearPatterns.Sample(_layers[1], d, i, _wearOffsets[1]),
+                    WearPatterns.Sample(_layers[2], d, i, _wearOffsets[2]),
+                    WearPatterns.Sample(_layers[3], d, i, _wearOffsets[3]));
             }
 
             var tex = new Texture2D(size, size, TextureFormat.RGBA32, false, true);
+            PadMask(px, d.on, size);
             tex.SetPixels32(px);
             tex.Apply();
             Graphics.Blit(tex, _wearA);
             Destroy(tex);
         }
 
+        // Fill only the UV gutter, so bilinear filtering does not invent clean seams.
+        static void PadMask(Color32[] pixels, bool[] surface, int size)
+        {
+            var filled = (bool[])surface.Clone();
+            var previous = new bool[filled.Length];
+            for (int pass = 0; pass < 2; pass++)
+            {
+                Array.Copy(filled, previous, filled.Length);
+                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    int i = y * size + x;
+                    if (previous[i]) continue;
+                    int source = x > 0 && previous[i - 1] ? i - 1 :
+                        x + 1 < size && previous[i + 1] ? i + 1 :
+                        y > 0 && previous[i - size] ? i - size :
+                        y + 1 < size && previous[i + size] ? i + size : -1;
+                    if (source < 0) continue;
+                    pixels[i] = pixels[source];
+                    filled[i] = true;
+                }
+            }
+        }
+
         void BuildSmallSurface(bool[] surface)
         {
             _surfaceSmall = new bool[SmallSize * SmallSize];
-            int scale = maskSize / SmallSize;
             _surfaceCount = 0;
             for (int y = 0; y < SmallSize; y++)
             for (int x = 0; x < SmallSize; x++)
             {
-                bool on = surface[(y * scale + scale / 2) * maskSize + (x * scale + scale / 2)];
+                int sx = Mathf.Min(maskSize - 1, (int)((x + 0.5f) * maskSize / SmallSize));
+                int sy = Mathf.Min(maskSize - 1, (int)((y + 0.5f) * maskSize / SmallSize));
+                bool on = surface[sy * maskSize + sx];
                 _surfaceSmall[y * SmallSize + x] = on;
                 if (on) _surfaceCount++;
             }
         }
 
-        static bool[] BuildSurface(Mesh mesh, int size, bool useUV0)
+        /// Растеризует меш в UV-пространство и запоминает для каждого тексела: позицию на модели,
+        /// куда он смотрит, высоту и близость к рёбрам. По этим данным пресет раскладывает износ.
+        SurfaceData BuildSurfaceData(Mesh mesh, int size, bool useUV0, int edgeWidth)
         {
-            var s = new bool[size * size];
+            var d = new SurfaceData(size);
 
             if (mesh == null || !mesh.isReadable)
             {
-                Debug.LogWarning("RestorableItem: у меша выключен Read/Write, прогресс считается по всей текстуре.");
-                for (int i = 0; i < s.Length; i++) s[i] = true;
-                return s;
+                Debug.LogWarning("RestorableItem: у меша выключен Read/Write, паттерны износа будут упрощены.");
+                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    int i = y * size + x;
+                    d.on[i] = true;
+                    d.pos[i] = new Vector3(x / (float)size, y / (float)size, 0f);
+                    d.up[i] = 0.5f;
+                    d.height[i] = y / (float)size;
+                }
+                return d;
             }
 
             var uv = useUV0 ? mesh.uv : mesh.uv2;
+            var verts = mesh.vertices;
+            var norms = mesh.normals;
             var tris = mesh.triangles;
+            bool hasN = norms != null && norms.Length == verts.Length;
+            var b = mesh.bounds;
+            float maxDim = Mathf.Max(b.size.x, Mathf.Max(b.size.y, b.size.z));
+            if (maxDim < 1e-5f) maxDim = 1f;
+            d.center = b.size / (maxDim * 2f);
+            float hy = Mathf.Max(b.size.y, 1e-5f);
+            var tf = meshFilter != null ? meshFilter.transform : transform;
+            var nrm = new Vector3[size * size];
+            var normalMatrix = tf.worldToLocalMatrix.transpose;
 
             for (int t = 0; t < tris.Length; t += 3)
             {
-                Vector2 a = uv[tris[t]] * size, b = uv[tris[t + 1]] * size, c = uv[tris[t + 2]] * size;
+                int i0 = tris[t], i1 = tris[t + 1], i2 = tris[t + 2];
+                Vector2 a = uv[i0] * size, bb = uv[i1] * size, c = uv[i2] * size;
 
-                int minX = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.x, b.x, c.x)));
-                int maxX = Mathf.Min(size - 1, Mathf.CeilToInt(Mathf.Max(a.x, b.x, c.x)));
-                int minY = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.y, b.y, c.y)));
-                int maxY = Mathf.Min(size - 1, Mathf.CeilToInt(Mathf.Max(a.y, b.y, c.y)));
+                int minX = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.x, bb.x, c.x)));
+                int maxX = Mathf.Min(size - 1, Mathf.CeilToInt(Mathf.Max(a.x, bb.x, c.x)));
+                int minY = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.y, bb.y, c.y)));
+                int maxY = Mathf.Min(size - 1, Mathf.CeilToInt(Mathf.Max(a.y, bb.y, c.y)));
 
-                float den = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
+                float den = (bb.y - c.y) * (a.x - c.x) + (c.x - bb.x) * (a.y - c.y);
                 if (Mathf.Abs(den) < 1e-8f) continue;
 
                 for (int y = minY; y <= maxY; y++)
                 for (int x = minX; x <= maxX; x++)
                 {
                     float px = x + 0.5f, py = y + 0.5f;
-                    float w1 = ((b.y - c.y) * (px - c.x) + (c.x - b.x) * (py - c.y)) / den;
+                    float w1 = ((bb.y - c.y) * (px - c.x) + (c.x - bb.x) * (py - c.y)) / den;
                     float w2 = ((c.y - a.y) * (px - c.x) + (a.x - c.x) * (py - c.y)) / den;
                     float w3 = 1f - w1 - w2;
-                    if (w1 >= -0.02f && w2 >= -0.02f && w3 >= -0.02f) s[y * size + x] = true;
+                    if (w1 < -1e-5f || w2 < -1e-5f || w3 < -1e-5f) continue;
+
+                    int idx = y * size + x;
+                    Vector3 p = verts[i0] * w1 + verts[i1] * w2 + verts[i2] * w3;
+                    Vector3 n = hasN ? (norms[i0] * w1 + norms[i1] * w2 + norms[i2] * w3).normalized : Vector3.up;
+
+                    d.on[idx] = true;
+                    d.pos[idx] = (p - b.min) / maxDim;
+                    d.height[idx] = Mathf.Clamp01((p.y - b.min.y) / hy);
+                    nrm[idx] = n;
+                    d.up[idx] = Mathf.Clamp01(normalMatrix.MultiplyVector(n).normalized.y);
                 }
             }
-            return s;
+
+            // Рёбра: там, где нормаль резко меняется от тексела к соседу
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                int i = y * size + x;
+                if (!d.on[i]) continue;
+                float crease = 0f, curvature = 0f;
+                int samples = 0;
+                if (x > 0) MeasureSurfaceNeighbour(d, nrm, i, i - 1, ref crease, ref curvature, ref samples);
+                if (x + 1 < size) MeasureSurfaceNeighbour(d, nrm, i, i + 1, ref crease, ref curvature, ref samples);
+                if (y > 0) MeasureSurfaceNeighbour(d, nrm, i, i - size, ref crease, ref curvature, ref samples);
+                if (y + 1 < size) MeasureSurfaceNeighbour(d, nrm, i, i + size, ref crease, ref curvature, ref samples);
+                d.edge[i] = Mathf.Clamp01((crease - 0.08f) * 5f);
+                d.cavity[i] = samples > 0 ? Mathf.Clamp01(-curvature / samples * 0.07f) : 0f;
+            }
+
+            // Расширяем полосу вокруг рёбер
+            var tmp = new float[size * size];
+            for (int pass = 0; pass < edgeWidth; pass++)
+            {
+                Array.Copy(d.edge, tmp, tmp.Length);
+                for (int y = 1; y < size - 1; y++)
+                for (int x = 1; x < size - 1; x++)
+                {
+                    int i = y * size + x;
+                    if (!d.on[i]) continue;
+                    float m = Mathf.Max(Mathf.Max(tmp[i], tmp[i - 1]), Mathf.Max(tmp[i + 1], Mathf.Max(tmp[i - size], tmp[i + size])));
+                    d.edge[i] = m;
+                }
+            }
+
+            return d;
+        }
+
+        static void MeasureSurfaceNeighbour(SurfaceData d, Vector3[] normals, int i, int j,
+            ref float crease, ref float curvature, ref int samples)
+        {
+            if (!d.on[j]) return;
+            Vector3 delta = d.pos[j] - d.pos[i];
+            float distanceSquared = delta.sqrMagnitude;
+            // Adjacent pixels in an atlas may belong to unrelated UV charts.
+            if (distanceSquared < 1e-9f || distanceSquared > 0.0025f) return;
+            Vector3 normalDelta = normals[j] - normals[i];
+            crease = Mathf.Max(crease, normalDelta.magnitude);
+            curvature += Vector3.Dot(normalDelta, delta) / distanceSquared;
+            samples++;
         }
     }
 }

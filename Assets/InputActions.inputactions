@@ -442,7 +442,7 @@
                 {
                     "name": "",
                     "id": "1c04ea5f-b012-41d1-a6f7-02e963b52893",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -1095,6 +1095,54 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Rotating",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "General",
+            "id": "206cd7d7-1136-4ded-aa1c-0a46336b6c9b",
+            "actions": [
+                {
+                    "name": "JumpRight",
+                    "type": "Button",
+                    "id": "4dc95af7-7977-4bed-ab15-19497b6cdec7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "JumpLeft",
+                    "type": "Button",
+                    "id": "a6f21fb1-c3ef-45fa-9fbc-b951f73001e4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "73bd967b-10c2-42cd-b7f1-e0fbc0ca8fa1",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "JumpRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "398ada15-97a9-49fd-ba40-a0d0b8ccdd0c",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "JumpLeft",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

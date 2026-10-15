@@ -9,13 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21365e7d309d485690a7d52f1f702751, type: 3}
-  m_Name: Wear_Peeling
+  m_Script: {fileID: 11500000, guid: bf9346edde074584af922b48d6ca1316, type: 3}
+  m_Name: TD_Brush
   m_EditorClassIdentifier: 
-  softColor: {r: 0.62, g: 0.56, b: 0.5, a: 1}
-  softCoverage: 0.5
-  softNoiseScale: 6
-  hardColor: {r: 0.78, g: 0.47, b: 0.42, a: 1}
-  hardCoverage: 0.85
-  hardNoiseScale: 4
-  hardSolid: 0
+  _toolName: Brush
+  _prefab: {fileID: 0}

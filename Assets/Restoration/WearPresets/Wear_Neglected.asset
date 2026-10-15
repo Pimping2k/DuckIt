@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21365e7d309d485690a7d52f1f702751, type: 3}
+  m_Name: Wear_Neglected
+  m_EditorClassIdentifier: 
+  stacked: 1
+  edgeWidth: 4
+  dust:
+    enabled: 1
+    color: {r: 0.85, g: 0.74, b: 0.64, a: 1}
+    pattern: 1
+    coverage: 1
+    noiseScale: 6
+    edgeBias: 0
+    gravityBias: 0
+    solid: 0
+  dirt:
+    enabled: 1
+    color: {r: 0.48, g: 0.33, b: 0.27, a: 1}
+    pattern: 3
+    coverage: 0.5
+    noiseScale: 7
+    edgeBias: 0
+    gravityBias: 0
+    solid: 0
+  oldPaint:
+    enabled: 1
+    color: {r: 0.88, g: 0.44, b: 0.37, a: 1}
+    pattern: 6
+    coverage: 0.6
+    noiseScale: 7
+    edgeBias: 0.5
+    gravityBias: 0
+    solid: 0
+  rust:
+    enabled: 1
+    color: {r: 0.81, g: 0.42, b: 0.17, a: 1}
+    pattern: 0
+    coverage: 0.3
+    noiseScale: 11
+    edgeBias: 0.7
+    gravityBias: 0.3
+    solid: 0

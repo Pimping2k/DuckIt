@@ -12,26 +12,41 @@ Shader "Restoration/ToonRestorable"
         _MaskUVSet ("Mask UV: 0 = UV0, 1 = UV1", Float) = 1
 
         [Header(Layer colors)]
-        _DustColor ("Dust", Color) = (0.62, 0.56, 0.50, 1)
-        _DirtColor ("Dirt", Color) = (0.40, 0.33, 0.26, 1)
-        _OldPaintColor ("Old Paint", Color) = (0.78, 0.47, 0.42, 1)
-        _RustColor ("Rust", Color) = (0.66, 0.31, 0.16, 1)
+        _DustColor ("Dust", Color) = (0.85, 0.74, 0.64, 1)
+        _DirtColor ("Dirt", Color) = (0.48, 0.33, 0.27, 1)
+        _OldPaintColor ("Old Paint", Color) = (0.88, 0.44, 0.37, 1)
+        [Toggle] _TexturedCoating ("Original Texture On Coating", Float) = 0
+        _SubstrateColor ("Exposed Ceramic", Color) = (0.64, 0.48, 0.34, 1)
+        _RustColor ("Rust", Color) = (0.81, 0.42, 0.17, 1)
+        _DustOpacity ("Dust Opacity", Range(0, 1)) = 0.62
+        _DetailScale ("Wear Detail Scale", Float) = 30
+        _DetailStrength ("Wear Detail Strength", Range(0, 1)) = 0.6
+        [HideInInspector] _WearCoordinates ("Wear Coordinates", Vector) = (0,0,0,1)
+        [HideInInspector] _WearDetailOffset ("Wear Seed Offset", Vector) = (0,0,0,0)
         _NewPaintColor ("New Paint", Color) = (0.55, 0.80, 0.75, 1)
         _EdgeLo ("Mask Edge Low", Range(0, 1)) = 0.42
         _EdgeHi ("Mask Edge High", Range(0, 1)) = 0.58
 
         [Header(Cel shading)]
-        _ShadowTint ("Shadow Tint", Color) = (0.557, 0.424, 0.604, 1)
-        _ShadowAmount ("Shadow Amount", Range(0, 1)) = 0.38
+        _ShadowTint ("Shadow Tint", Color) = (0.48, 0.35, 0.63, 1)
+        _ShadowAmount ("Shadow Amount", Range(0, 1)) = 0.5
         _ShadowStep ("Shadow Step", Range(0, 1)) = 0.5
-        _ShadowSoft ("Shadow Softness", Range(0.001, 0.5)) = 0.04
-        _LightContribution ("Light Color Contribution", Range(0, 1)) = 0.3
+        _ShadowSoft ("Shadow Softness", Range(0.001, 0.5)) = 0.10
+        _ShadingBlend ("Toon Flattening", Range(0, 1)) = 0.25
+        _LightContribution ("Light Color Contribution", Range(0, 1)) = 0.5
+        _SkyAmbient ("Ambient Tint In Shadow", Range(0, 1)) = 0.6
+        _LampBoost ("Lamp Strength", Range(0, 2)) = 1
+        _FloorY ("Floor Height", Float) = 0
+        _FloorHeight ("Fade Height", Float) = 1.2
+        _FloorDark ("Brightness At Floor", Range(0, 1)) = 0.8
 
         [Header(Glint and rim)]
         _GlintColor ("Glint and Rim Color", Color) = (1, 0.96, 0.9, 1)
         _GlintSize ("Glint Size", Range(0, 1)) = 0.2
         _GlintSoft ("Glint Softness", Range(0, 1)) = 0.1
         _PaintGloss ("Fresh Paint Gloss", Range(0, 1)) = 0.15
+        _BareGloss ("Bare Material Gloss", Range(0, 1)) = 0.18
+        _WearRelief ("Coating Relief", Range(0, 0.003)) = 0.0006
         _RimSize ("Rim Size", Range(0, 1)) = 0.45
         _RimSoft ("Rim Softness", Range(0.01, 1)) = 0.3
         _RimStrength ("Rim Strength", Range(0, 1)) = 0.25
@@ -57,8 +72,15 @@ Shader "Restoration/ToonRestorable"
             half4 _BaseColor;
             half _MaskUVSet;
             half4 _DustColor;
+            half _DustOpacity;
+            half _DetailScale;
+            half _DetailStrength;
+            float4 _WearCoordinates;
+            float4 _WearDetailOffset;
             half4 _DirtColor;
             half4 _OldPaintColor;
+            half _TexturedCoating;
+            half4 _SubstrateColor;
             half4 _RustColor;
             half4 _NewPaintColor;
             half _EdgeLo;
@@ -67,11 +89,19 @@ Shader "Restoration/ToonRestorable"
             half _ShadowAmount;
             half _ShadowStep;
             half _ShadowSoft;
+            half _ShadingBlend;
             half _LightContribution;
+            half _SkyAmbient;
+            half _LampBoost;
+            half _FloorY;
+            half _FloorHeight;
+            half _FloorDark;
             half4 _GlintColor;
             half _GlintSize;
             half _GlintSoft;
             half _PaintGloss;
+            half _BareGloss;
+            half _WearRelief;
             half _RimSize;
             half _RimSoft;
             half _RimStrength;
@@ -90,9 +120,15 @@ Shader "Restoration/ToonRestorable"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _FORWARD_PLUS
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
+            #pragma multi_compile_fog
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "FirewatchLighting.hlsl"
+            #include "WearDetail.hlsl"
 
             struct Attributes
             {
@@ -109,6 +145,8 @@ Shader "Restoration/ToonRestorable"
                 float3 normalWS : TEXCOORD1;
                 float2 uv : TEXCOORD2;
                 float2 uv1 : TEXCOORD3;
+                float fogFactor : TEXCOORD4;
+                float3 posOS : TEXCOORD5;
             };
 
             Varyings vert(Attributes v)
@@ -120,6 +158,8 @@ Shader "Restoration/ToonRestorable"
                 o.normalWS = TransformObjectToWorldNormal(v.normalOS);
                 o.uv = TRANSFORM_TEX(v.uv, _BaseMap);
                 o.uv1 = _MaskUVSet > 0.5 ? v.uv1 : v.uv;
+                o.fogFactor = ComputeFogFactor(p.positionCS.z);
+                o.posOS = v.positionOS.xyz;
                 return o;
             }
 
@@ -133,48 +173,78 @@ Shader "Restoration/ToonRestorable"
                 // ---- Слои состояния ----
                 half3 bare = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb * _BaseColor.rgb;
                 half4 w = SAMPLE_TEXTURE2D(_WearMask, sampler_WearMask, i.uv1);
-                half2 p = SAMPLE_TEXTURE2D(_PaintMask, sampler_PaintMask, i.uv1).rg;
+                half3 p = SAMPLE_TEXTURE2D(_PaintMask, sampler_PaintMask, i.uv1).rgb;
 
-                half dust = EdgeMask(w.r);
-                half dirt = EdgeMask(w.g);
-                half oldP = EdgeMask(w.b);
-                half rust = EdgeMask(w.a);
                 half newP = EdgeMask(p.r);
                 half varn = saturate(p.g);
+                half wetV = p.b;   // влажность от губки
+
+                WearColors C;
+                C.dust = _DustColor.rgb;
+                C.dirt = _DirtColor.rgb;
+                C.oldPaint = _OldPaintColor.rgb;
+                C.texturedCoating = _TexturedCoating;
+                C.substrate = _SubstrateColor.rgb;
+                C.rust = _RustColor.rgb;
+                C.dustOpacity = _DustOpacity;
+                C.detailStrength = _DetailStrength;
+                WearNoise N = WearNoiseAt((i.posOS * _WearCoordinates.w + _WearCoordinates.xyz
+                    + _WearDetailOffset.xyz) * _DetailScale);
+                N.broad = lerp(0.5h, N.broad, C.detailStrength);
+                N.mid = lerp(0.5h, N.mid, C.detailStrength);
+                N.fine = lerp(0.5h, N.fine, C.detailStrength);
 
                 // снизу вверх: материал → ржавчина → старая краска → новая краска → грязь → пыль
-                half3 albedo = bare;
-                albedo = lerp(albedo, _RustColor.rgb, rust);
-                albedo = lerp(albedo, _OldPaintColor.rgb, oldP);
+                half rustA, paintA, dirtA, dustA;
+                half3 albedo = WearBelow(bare, w, N, C, rustA, paintA);
                 albedo = lerp(albedo, _NewPaintColor.rgb, newP);
-                albedo = lerp(albedo, _DirtColor.rgb, dirt);
-                albedo = lerp(albedo, _DustColor.rgb, dust);
+                albedo = WearAbove(albedo, w, N, C, dirtA, dustA);
+                albedo *= 1.0h - wetV * 0.18h;   // мокрое темнее
 
                 // насколько поверхность "потускнела": износ гасит блик и рим
-                half wear = max(max(dust, dirt), max(oldP, rust) * (1.0h - newP));
+                half coatingDullness = paintA * lerp(1.0h, 0.18h, _TexturedCoating);
+                half wear = max(max(dustA, dirtA), max(coatingDullness, rustA) * (1.0h - newP));
 
-                // ---- Cel-освещение ----
+                // ---- Освещение (общее для всех шейдеров игры) ----
+                FWParams P;
+                P.shadowTint = _ShadowTint.rgb;
+                P.shadowAmount = _ShadowAmount;
+                P.shadowStep = _ShadowStep;
+                P.shadowSoft = _ShadowSoft;
+                P.shadingBlend = _ShadingBlend;
+                P.lightMix = _LightContribution;
+                P.skyAmbient = _SkyAmbient;
+                P.lampBoost = _LampBoost;
+                P.floorY = _FloorY;
+                P.floorHeight = _FloorHeight;
+                P.floorDark = _FloorDark;
+
                 float3 nWS = normalize(i.normalWS);
+                // Surface gradient: a small raised edge on the remaining coating.
+                // Derivatives follow the mask on the actual surface, independent of UV orientation.
+                float coating = (paintA * (1.0h - newP) + rustA * 0.35h + dirtA * 0.1h) * _WearRelief;
+                float3 dpdx = ddx(i.positionWS), dpdy = ddy(i.positionWS);
+                float3 r1 = cross(dpdy, nWS), r2 = cross(nWS, dpdx);
+                float det = dot(dpdx, r1);
+                float3 gradient = (r1 * ddx(coating) + r2 * ddy(coating))
+                    * (sign(det) / max(abs(det), 1e-8));
+                nWS = normalize(nWS - gradient);
                 float3 viewDir = normalize(_WorldSpaceCameraPos - i.positionWS);
-                float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
-                Light mainLight = GetMainLight(shadowCoord);
-
-                half ndl = dot(nWS, mainLight.direction) * 0.5h + 0.5h;
-                half lit = smoothstep(_ShadowStep - _ShadowSoft, _ShadowStep + _ShadowSoft, ndl);
-                lit *= mainLight.shadowAttenuation;
-
-                half3 shadedCol = lerp(albedo, _ShadowTint.rgb, _ShadowAmount);
-                half3 lightTint = lerp(half3(1, 1, 1), mainLight.color, _LightContribution);
-                half3 col = lerp(shadedCol, albedo, lit) * lightTint;
+                half lit;
+                Light mainLight;
+                half3 col = FWShade(albedo, nWS, i.positionWS, i.positionCS, P, lit, mainLight);
 
                 // ---- Блик: лак + чуть свежей краски, износ гасит ----
-                half gloss = saturate(varn + newP * _PaintGloss) * (1.0h - wear);
+                half substrateGloss = _BareGloss * lerp(1.0h, paintA, _TexturedCoating);
+                half surfaceGloss = lerp(substrateGloss, _PaintGloss, newP);
+                half gloss = saturate(surfaceGloss * (1.0h - wear) + varn * (1.0h - wear) + wetV * 0.7h);
                 float3 h = normalize(mainLight.direction + viewDir);
                 half ndh = saturate(dot(nWS, h));
                 half thr = 1.0h - _GlintSize * 0.25h;
                 half soft = max(0.0005h, _GlintSoft * 0.05h);
                 half glint = smoothstep(thr - soft, thr + soft, ndh) * lit * gloss;
-                col += _GlintColor.rgb * glint;
+                half broadGlint = pow(ndh, 32.0h) * lit * gloss * 0.3h;
+                col += _GlintColor.rgb * (glint + broadGlint) * mainLight.color;
 
                 // ---- Рим ----
                 half rim = 1.0h - saturate(dot(nWS, viewDir));
@@ -182,6 +252,7 @@ Shader "Restoration/ToonRestorable"
                 rim = smoothstep(rimThr, rimThr + _RimSoft, rim);
                 col += _GlintColor.rgb * rim * _RimStrength * (1.0h - wear);
 
+                col = MixFog(col, i.fogFactor);
                 return half4(col, 1);
             }
             ENDHLSL

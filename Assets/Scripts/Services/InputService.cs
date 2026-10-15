@@ -10,6 +10,7 @@ namespace Services
         public InputActions InputSystem { get; private set; }
         public InputActions.UIActions UI { get; private set; }
         public InputActions.PlayerActions Player { get; private set; }
+        public InputActions.GeneralActions General { get; private set; }
         public InputActions.CleaningActions Cleaning { get; private set; }
         public event Action MapChanged;
         public bool IsReady { get; private set; }
@@ -21,11 +22,12 @@ namespace Services
             
             UI = InputSystem.UI;
             Player = InputSystem.Player;
+            General = InputSystem.General;
             Cleaning = InputSystem.Cleaning;
             
-            InputSystem.Enable();
             IsReady = true;
             ChangeMap(MapType.Gameplay);
+            General.Enable();
         }
 
         private void OnDestroy()

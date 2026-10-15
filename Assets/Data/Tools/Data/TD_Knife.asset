@@ -9,13 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21365e7d309d485690a7d52f1f702751, type: 3}
-  m_Name: Wear_Moldy
+  m_Script: {fileID: 11500000, guid: bf9346edde074584af922b48d6ca1316, type: 3}
+  m_Name: TD_Knife
   m_EditorClassIdentifier: 
-  softColor: {r: 0.37, g: 0.42, b: 0.29, a: 1}
-  softCoverage: 0.7
-  softNoiseScale: 7
-  hardColor: {r: 0, g: 0, b: 0, a: 1}
-  hardCoverage: 0
-  hardNoiseScale: 9
-  hardSolid: 0
+  _toolName: Knife
+  _prefab: {fileID: 4565880949048128948, guid: ff6cd91e39af1084398be1a39d40e4bf, type: 3}

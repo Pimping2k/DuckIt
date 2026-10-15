@@ -12,6 +12,7 @@ namespace Services
         public InputActions.UIActions UI { get; }
         public InputActions.PlayerActions Player { get; }
         public InputActions.CleaningActions Cleaning { get; }
+        public InputActions.GeneralActions General { get; }
         public event Action MapChanged;
         public bool IsReady { get; }
         public void ChangeMap(MapType mapType);

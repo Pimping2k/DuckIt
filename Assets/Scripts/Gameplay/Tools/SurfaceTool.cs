@@ -29,7 +29,8 @@ namespace Gameplay.Tools
                 return;
 
             item.Stroke(item.GetUV(hit), _radius, _profile.hardness, _profile.strength * dt,
-                _profile.wearSub, _profile.paintAdd, _profile.gateByWear);
+                _profile.wearSub, _profile.paintAdd, _profile.gateByWear,
+                _profile.wetAdd, _profile.needWet, _profile.peel);
         }
     }
 }

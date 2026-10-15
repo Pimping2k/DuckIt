@@ -11,6 +11,14 @@ namespace Gameplay.Tools
         public Vector2 paintAdd;
         public bool gateByWear;
 
+        [Header("Влага и снятие покрытия")]
+        [Min(0f), Tooltip("Сколько влаги оставляет инструмент: для губки около 3")]
+        public float wetAdd;
+        [Tooltip("Каким слоям нужна влага: грязь = (0,1,0,0)")]
+        public Vector4 needWet;
+        [Tooltip("Снимать покрытие только с открытого края (пинцет)")]
+        public bool peel;
+
         [Header("Brushes")]
         [Range(0.005f, 0.2f)] public float radius = 0.04f;
         [Range(0.005f, 0.2f)] public float minRadius = 0.01f;
