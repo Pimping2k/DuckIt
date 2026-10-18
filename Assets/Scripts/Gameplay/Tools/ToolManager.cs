@@ -1,32 +1,57 @@
-﻿using AYellowpaper.SerializedCollections;
-using DG.Tweening;
+﻿using System;
+using Gameplay.Tools.ToolPlacement;
+using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
 using UnityEngine;
 
 namespace Gameplay.Tools
 {
-    public class ToolManager : MonoBehaviour
+    public class ToolManager : MonoBehaviour, IService
     {
+        [SerializeField] private ToolPlacementBase _initialToolPlacement;
         
-        private PlayerToolController _playerToolController;
+        private IToolPlacement _lastPlacement;
+        
+        public BaseTool CurrentTool { get; private set; }
+        public IToolPlacement CurrentToolPlacement { get; private set; }
+        
+        public event Action<BaseTool, BaseTool> ToolChanged;
 
-        private Tween _moveInHandsTween;
-        private Tween _restoreTween;
-
-        private void Start()
+        private void Awake()
         {
-            _playerToolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
-            _playerToolController.ToolChanged += OnToolChanged;
+            RequestChangePlacement(_initialToolPlacement);
         }
 
-        private void OnDestroy()
+        public void ChangeTool(BaseTool tool)
         {
-            _playerToolController.ToolChanged -= OnToolChanged;
+            if (CurrentTool == tool)
+                return;
+
+            var oldTool = CurrentTool;
+
+            CurrentToolPlacement?.Detach();
+            CurrentTool = tool;
+
+            if (CurrentTool)
+                CurrentToolPlacement?.Attach(CurrentTool);
+
+            ToolChanged?.Invoke(oldTool, CurrentTool);
         }
 
-        private void OnToolChanged(BaseTool prevTool, BaseTool newTool)
+        public void RequestChangePlacement<T>(T toolPlacement) where T : IToolPlacement
         {
-            
+            _lastPlacement = CurrentToolPlacement;
+            CurrentToolPlacement?.Detach();
+            CurrentToolPlacement = toolPlacement;
+            CurrentToolPlacement.Attach(CurrentTool);
+        }
+
+        public void RestorePlacement()
+        {
+            if (_lastPlacement == null)
+                return;
+
+            RequestChangePlacement(_lastPlacement);
         }
     }
 }

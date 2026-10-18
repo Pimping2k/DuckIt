@@ -1,7 +1,10 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using Data;
 using DG.Tweening;
 using Gameplay.Interaction;
+using Gameplay.Tools;
+using Gameplay.Tools.ToolPlacement;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Restorable;
 using Unity.Cinemachine;
@@ -14,19 +17,31 @@ namespace Services
     {
         [SerializeField] private Transform _snapPoint;
         [SerializeField] private CinemachineCamera _inspectionCamera;
-        [SerializeField] private float _rotationSensitivity = 0.4f;
+        [SerializeField] private InspectionPlacement _inspectionPlacement;
+        
+        [Header("Rotation Settings")]
+        [SerializeField] private float _rotationSensitivity = 0.2f;
+        [SerializeField] private float _rotationSmoothness = 12f;
         
         private IInputService _inputService;
         private CameraService _cameraService;
+        private ToolManager _toolManager;
 
         private bool _isExiting;
         private bool _isRotating;
+        private bool _isReady;
         
         private Transform _initialItemParent;
         private InspectionInteractable _currentInspectionItem;
-        
+
+        private Quaternion _targetRotation;
+
+        public bool IsRotating => _isRotating;
+        public event Action InspectionFinished;
+
         private void Awake()
         {
+            _toolManager = ServiceLocator.Resolve<ToolManager>();
             _inputService = ServiceLocator.Resolve<IInputService>();
             _cameraService = ServiceLocator.Resolve<CameraService>();
 
@@ -46,53 +61,100 @@ namespace Services
             _inputService.Cleaning.Rotating.performed -= OnRotatingPerformed;
         }
 
-        public void StartInspection(InspectionInteractable inspectableItem)
+        private void Update()
         {
-            _initialItemParent = _initialItemParent ? inspectableItem.transform.parent : inspectableItem.transform;
-            
-            _currentInspectionItem = inspectableItem;
-            
-            Animations.SnapItem(inspectableItem.transform, _snapPoint).OnComplete(() =>
-            {
-                _inputService.ChangeMap(MapType.Cleaning);
-                _cameraService.OverlapCamera(_inspectionCamera);
-            });
+            SmoothRotation();
         }
 
-        public void FinishInspection(InspectionInteractable inspectionInteractable)
+        public async UniTaskVoid StartInspection(InspectionInteractable inspectableItem)
         {
-            _isExiting = true;
-            _inputService.ChangeMap(MapType.Gameplay);
-            _cameraService.RemoveOverlappingCamera();
+            if (inspectableItem == null || _isExiting)
+                return;
+
+            _initialItemParent = inspectableItem.transform.parent;
+            _currentInspectionItem = inspectableItem;
+            _targetRotation = inspectableItem.transform.rotation;
             
-            Animations.SnapItem(inspectionInteractable.transform, _initialItemParent).OnComplete(() =>
+            Animations.SnapItem(inspectableItem.transform, _snapPoint);
+            
+            await _cameraService.OverlapCamera(_inspectionCamera); 
+            
+            _inputService.ChangeMap(MapType.Cleaning);
+            _toolManager.RequestChangePlacement(_inspectionPlacement);
+            _isReady = true;
+        }
+
+        public async UniTaskVoid FinishInspection(InspectionInteractable inspectionInteractable)
+        {
+            if (_isExiting || inspectionInteractable == null)
+                return;
+
+            _isExiting = true;
+            _isReady = false;
+
+            _inputService.ChangeMap(MapType.Gameplay);
+            _toolManager.RestorePlacement();
+    
+            await _cameraService.RemoveOverlappingCamera();
+    
+            if (inspectionInteractable != null)
+            {
+                inspectionInteractable.transform.SetParent(_initialItemParent);
+
+                if (_initialItemParent != null)
+                {
+                    Animations.SnapItem(inspectionInteractable.transform, _initialItemParent).OnComplete(ResetState);
+                }
+                else
+                {
+                    ResetState();
+                }
+            }
+            else
+            {
+                ResetState();
+            }
+
+            void ResetState()
             {
                 _currentInspectionItem = null;
+                _initialItemParent = null;
                 _isExiting = false;
-            });
+                InspectionFinished?.Invoke();
+            }
         }
 
         private void OnRotatingPerformed(InputAction.CallbackContext obj)
         {
-            if(_currentInspectionItem == null || _isExiting)
+            if (_currentInspectionItem == null || _isExiting || !_isRotating)
                 return;
 
-            if (!_isRotating)
-                return;
-            
             Vector2 mouseDelta = obj.ReadValue<Vector2>();
 
-            if (!mouseDelta.Equals(Vector2.zero))
+            if (mouseDelta != Vector2.zero)
             {
-                Transform itemTransform = _currentInspectionItem.transform;
-                Transform camTransform = _cameraService.Camera.transform;
+                Transform camTransform = _cameraService.Camera ? _cameraService.Camera.transform : null;
 
                 if (camTransform)
                 {
-                    itemTransform.Rotate(camTransform.up, -mouseDelta.x * _rotationSensitivity, Space.World);
-                    itemTransform.Rotate(camTransform.right, mouseDelta.y * _rotationSensitivity, Space.World);
+                    Quaternion yaw = Quaternion.AngleAxis(-mouseDelta.x * _rotationSensitivity, camTransform.up);
+                    Quaternion pitch = Quaternion.AngleAxis(mouseDelta.y * _rotationSensitivity, camTransform.right);
+
+                    _targetRotation = yaw * pitch * _targetRotation;
                 }
             }
+        }
+
+        private void SmoothRotation()
+        {
+            if (_currentInspectionItem == null || _isExiting)
+                return;
+
+            _currentInspectionItem.transform.rotation = Quaternion.Slerp(
+                _currentInspectionItem.transform.rotation,
+                _targetRotation,
+                Time.deltaTime * _rotationSmoothness
+            );
         }
 
         private void OnSecondaryActionPerformed(InputAction.CallbackContext obj)
@@ -107,6 +169,9 @@ namespace Services
 
         private void OnBackPerformed(InputAction.CallbackContext obj)
         {
+            if(!_isReady)
+                return;
+            
             FinishInspection(_currentInspectionItem);
         }
 
@@ -114,7 +179,7 @@ namespace Services
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
-            if(_snapPoint)
+            if (_snapPoint)
                 Gizmos.DrawWireSphere(_snapPoint.position, 0.1f);
         }
 #endif

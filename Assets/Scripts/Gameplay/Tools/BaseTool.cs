@@ -22,6 +22,7 @@ namespace Gameplay.Tools
     
     public abstract class BaseTool : MonoBehaviour
     {
+        [SerializeField] private ToolData _toolData;
         [SerializeField] private ToolType _type;
         [SerializeField] private RestoreTool _restoreToolType;
         
@@ -30,6 +31,7 @@ namespace Gameplay.Tools
         
         private Collider[] _colliders;
         
+        public ToolData ToolData => _toolData;
         public ToolType Type => _type;
         
         protected virtual void Awake()

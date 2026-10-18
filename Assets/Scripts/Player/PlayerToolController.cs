@@ -1,32 +1,39 @@
 ﻿using System;
 using Gameplay.Tools;
+using Gameplay.Tools.ToolPlacement;
+using MyPackage.Runtime.ServiceLocator_Core;
+using Services;
 using UnityEngine;
 
 namespace Player
 {
     public class PlayerToolController : PlayerComponent
     {
-        [SerializeField] private Transform _holdTransform;
+        [SerializeField] private HandPlacement _handPlacement;
 
-        public Transform HoldTransform => _holdTransform;
-        public BaseTool CurrentTool { get; private set; }
-        public event Action<BaseTool, BaseTool> ToolChanged;
+        private ToolManager _toolManager;
+        private InspectionManager _inspectionManager;
 
-        public override void Initialize()
+        public HandPlacement HandPlacement => _handPlacement;
+        
+        private void Awake()
         {
+            _toolManager = ServiceLocator.Resolve<ToolManager>();
+            _inspectionManager = ServiceLocator.Resolve<InspectionManager>();
             
+            _inspectionManager.InspectionFinished += OnInspectionFinished;
         }
 
-        public void SetTool(BaseTool tool)
+        private void OnDestroy()
         {
-            if (CurrentTool == tool) 
-                return;
+            _inspectionManager.InspectionFinished -= OnInspectionFinished;
+        }
 
-            var oldTool = CurrentTool;
-            var newTool = tool;
-            CurrentTool = newTool;
-            
-            ToolChanged?.Invoke(oldTool, newTool);
+        public override void Initialize() { }
+
+        private void OnInspectionFinished()
+        {
+            _toolManager.RequestChangePlacement(_handPlacement);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Services
             
                 case MapType.Cleaning:
                     InputSystem.Cleaning.Enable();
-                    CursorMode = CursorLockMode.Locked;
+                    CursorMode = CursorLockMode.Confined;
                     break;
                 
                 case MapType.UI:

@@ -12,6 +12,7 @@ namespace Gameplay.Tools
     {
         [SerializeField] private ToolData[] _toolMapData;
         
+        private ToolManager _toolManager;
         private IInputService _inputService;
         private PlayerToolController _playerToolController;
         
@@ -23,6 +24,7 @@ namespace Gameplay.Tools
         private void Awake()
         {
             _inputService = ServiceLocator.Resolve<IInputService>();
+            _toolManager = ServiceLocator.Resolve<ToolManager>();
             
             ToggleSubscriptions(true);
         }
@@ -75,7 +77,7 @@ namespace Gameplay.Tools
             ToolData toolData = _toolMapData[_currentToolIndex];
             _currentTool = Instantiate(toolData.Prefab);
 
-            _playerToolController.SetTool(_currentTool);
+            _toolManager.ChangeTool(_currentTool);
         }
     }
 }

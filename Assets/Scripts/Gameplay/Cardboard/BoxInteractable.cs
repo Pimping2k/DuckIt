@@ -46,6 +46,7 @@ namespace Gameplay.Cardboard
         [SerializeField] private Transform _itemPosition;
         
         private PlacementManager _placementManager;
+        private ToolManager _toolManager;
 
         private RestorableInteractable _currentRestorableItem;
         private bool _isBusy;
@@ -65,8 +66,10 @@ namespace Gameplay.Cardboard
 
         public event Action<BoxInteractable, BoxState> OnStateChange;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+            _toolManager = ServiceLocator.Resolve<ToolManager>();
             _placementManager = ServiceLocator.Resolve<PlacementManager>();
             Setup(_config);
         }
@@ -121,17 +124,16 @@ namespace Gameplay.Cardboard
 
         private void PerformOpenBox()
         {
-            var toolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
-
-            if (!toolController.CurrentTool)
+            if (!_toolManager.CurrentTool)
                 return;
 
-            if (toolController.CurrentTool.Type != ToolType.Knife)
+            if (_toolManager.CurrentTool.Type != ToolType.Knife)
                 return;
 
             _isBusy = true;
-            Animations.OpenBoxWithKnife(toolController.CurrentTool.transform, _startPoint, _endPoint, toolController.HoldTransform.transform).OnComplete(() =>
+            Animations.OpenBoxWithKnife(_toolManager.CurrentTool.transform, _startPoint, _endPoint).OnComplete(() =>
             {
+                _toolManager?.RequestChangePlacement(_toolManager.CurrentToolPlacement);
                 _tape.SetActive(false);
                 State = BoxState.Opened;
                 PerformOpenFlaps();

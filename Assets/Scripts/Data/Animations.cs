@@ -23,13 +23,12 @@ namespace Data
                 .Append(box.DOPunchRotation(new Vector3(0, 0, punch), 0.4f, 8, 0.5f));
         }
 
-        public static Sequence OpenBoxWithKnife(Transform knife, Transform startPoint, Transform endPoint, Transform initialParent)
+        public static Sequence OpenBoxWithKnife(Transform knife, Transform startPoint, Transform endPoint)
         {
             return DOTween.Sequence().SetTarget(knife).SetLink(knife.gameObject)
                 .Append(knife.DOLocalRotate(startPoint.localEulerAngles, 0.1f))
                 .Insert(0f, knife.DOMove(startPoint.position, 0.6f))
                 .Insert(0.6f, knife.DOMove(endPoint.position, 0.6f))
-                .Insert(1.2f, knife.DOMove(initialParent.position, 0.3f))
                 .Insert(1.2f, knife.DOLocalRotate(Vector3.zero, 0.1f));
         }
 
@@ -99,6 +98,35 @@ namespace Data
             return DOTween.Sequence().SetTarget(item).SetLink(item.gameObject)
                 .Append(item.DOMove(targetPoint.position, 0.3f))
                 .Append(item.DORotateQuaternion(targetPoint.rotation, 0.1f));
+        }
+        
+        public static Sequence SnapTool(Transform tool, Transform targetPoint, float duration = 0.4f)
+        {
+            tool.DOKill();
+            tool.SetParent(targetPoint, true);
+
+            Quaternion tilt = targetPoint.rotation *
+                              Quaternion.Euler(-12f, 8f, 5f);
+
+            float moveDuration = duration * 0.8f;
+
+            return DOTween.Sequence()
+                .SetTarget(tool)
+                .SetLink(tool.gameObject)
+                .Append(
+                    tool.DOLocalMove(Vector3.zero, moveDuration)
+                        .SetEase(Ease.OutCubic)
+                )
+                .Join(
+                    tool.DORotateQuaternion(tilt, moveDuration)
+                        .SetEase(Ease.OutSine)
+                )
+                .Append(
+                    tool.DOLocalRotateQuaternion(
+                        Quaternion.identity,
+                        duration * 0.2f
+                    ).SetEase(Ease.OutSine)
+                );
         }
     }
 }

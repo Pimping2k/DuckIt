@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -15,16 +16,26 @@ namespace Services
         private readonly Stack<CinemachineCamera> _stack = new();
         
         private int _mainPriority = 999;
+        private Camera _mainCamera;
         
         public CinemachineCamera Camera => _currentCamera;
         public CinemachineBrain CameraBrain => _cameraBrain;
+        public Camera MainCamera
+        {
+            get
+            {
+                if (!_mainCamera)
+                    _mainCamera = CameraBrain.GetComponent<Camera>();
+                return _mainCamera;
+            }
+        }
         
         private void Awake()
         {
             OverlapCamera(_defaultCamera);
         }
 
-        public void OverlapCamera(CinemachineCamera overlapCamera, float blendTime = 0f)
+        public async UniTask OverlapCamera(CinemachineCamera overlapCamera, float blendTime = 0f)
         {
             if (_currentCamera) 
                 _currentCamera.Priority = -1;
@@ -32,17 +43,22 @@ namespace Services
             _stack.Push(overlapCamera);
             _currentCamera = overlapCamera;
             _currentCamera.Priority = _mainPriority;
+            await UniTask.WaitForSeconds(CameraBrain.DefaultBlend.BlendTime);
         }
 
-        public void RemoveOverlappingCamera(float blendTime = 0f)
+        public async UniTask RemoveOverlappingCamera(float blendTime = 0f)
         {
-            if (_stack.Count <= 1) 
+            if (_stack.Count <= 1)
+            {
+                await UniTask.WaitForSeconds(CameraBrain.DefaultBlend.BlendTime);
                 return;
+            }
             
             _currentCamera.Priority = -1;
             _stack.Pop();
             _currentCamera = _stack.Peek();
             _currentCamera.Priority = _mainPriority;
+            await UniTask.WaitForSeconds(CameraBrain.DefaultBlend.BlendTime);
         }
     }
 }
