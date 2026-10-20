@@ -1137,6 +1137,33 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToolUse"",
+                    ""type"": ""Button"",
+                    ""id"": ""11352015-b365-4410-9c8f-3e0e24d0842f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LockRotate"",
+                    ""type"": ""Button"",
+                    ""id"": ""14d85ced-a005-4537-8b44-e657bef68224"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LockMovement"",
+                    ""type"": ""Button"",
+                    ""id"": ""2ac12b19-a9cf-4411-97f3-8ba725148db9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1181,6 +1208,39 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Rotating"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""711f0fdf-9d48-43cd-9996-de90a7c5ffa5"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ToolUse"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eddcd2f7-fb68-4d76-834f-25ec6f69a693"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""LockRotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1eae1cd7-7ca6-433d-a2ed-42b669b87dc9"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""LockMovement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1328,6 +1388,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Cleaning_SecondaryAction = m_Cleaning.FindAction("SecondaryAction", throwIfNotFound: true);
         m_Cleaning_Back = m_Cleaning.FindAction("Back", throwIfNotFound: true);
         m_Cleaning_Rotating = m_Cleaning.FindAction("Rotating", throwIfNotFound: true);
+        m_Cleaning_ToolUse = m_Cleaning.FindAction("ToolUse", throwIfNotFound: true);
+        m_Cleaning_LockRotate = m_Cleaning.FindAction("LockRotate", throwIfNotFound: true);
+        m_Cleaning_LockMovement = m_Cleaning.FindAction("LockMovement", throwIfNotFound: true);
         // General
         m_General = asset.FindActionMap("General", throwIfNotFound: true);
         m_General_JumpRight = m_General.FindAction("JumpRight", throwIfNotFound: true);
@@ -1809,6 +1872,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Cleaning_SecondaryAction;
     private readonly InputAction m_Cleaning_Back;
     private readonly InputAction m_Cleaning_Rotating;
+    private readonly InputAction m_Cleaning_ToolUse;
+    private readonly InputAction m_Cleaning_LockRotate;
+    private readonly InputAction m_Cleaning_LockMovement;
     /// <summary>
     /// Provides access to input actions defined in input action map "Cleaning".
     /// </summary>
@@ -1836,6 +1902,18 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Cleaning/Rotating".
         /// </summary>
         public InputAction @Rotating => m_Wrapper.m_Cleaning_Rotating;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/ToolUse".
+        /// </summary>
+        public InputAction @ToolUse => m_Wrapper.m_Cleaning_ToolUse;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/LockRotate".
+        /// </summary>
+        public InputAction @LockRotate => m_Wrapper.m_Cleaning_LockRotate;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/LockMovement".
+        /// </summary>
+        public InputAction @LockMovement => m_Wrapper.m_Cleaning_LockMovement;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1874,6 +1952,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Rotating.started += instance.OnRotating;
             @Rotating.performed += instance.OnRotating;
             @Rotating.canceled += instance.OnRotating;
+            @ToolUse.started += instance.OnToolUse;
+            @ToolUse.performed += instance.OnToolUse;
+            @ToolUse.canceled += instance.OnToolUse;
+            @LockRotate.started += instance.OnLockRotate;
+            @LockRotate.performed += instance.OnLockRotate;
+            @LockRotate.canceled += instance.OnLockRotate;
+            @LockMovement.started += instance.OnLockMovement;
+            @LockMovement.performed += instance.OnLockMovement;
+            @LockMovement.canceled += instance.OnLockMovement;
         }
 
         /// <summary>
@@ -1897,6 +1984,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Rotating.started -= instance.OnRotating;
             @Rotating.performed -= instance.OnRotating;
             @Rotating.canceled -= instance.OnRotating;
+            @ToolUse.started -= instance.OnToolUse;
+            @ToolUse.performed -= instance.OnToolUse;
+            @ToolUse.canceled -= instance.OnToolUse;
+            @LockRotate.started -= instance.OnLockRotate;
+            @LockRotate.performed -= instance.OnLockRotate;
+            @LockRotate.canceled -= instance.OnLockRotate;
+            @LockMovement.started -= instance.OnLockMovement;
+            @LockMovement.performed -= instance.OnLockMovement;
+            @LockMovement.canceled -= instance.OnLockMovement;
         }
 
         /// <summary>
@@ -2293,6 +2389,27 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRotating(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToolUse" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToolUse(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LockRotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLockRotate(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LockMovement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLockMovement(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "General" which allows adding and removing callbacks.

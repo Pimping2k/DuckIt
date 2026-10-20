@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63cb3ad6e8bc4762836baf9c87c91b79, type: 3}
   m_Name: TP_Brush
   m_EditorClassIdentifier: 
-  wearSub: {x: 0, y: 0, z: 0, w: 0}
+  wearSub: {x: 1, y: 0, z: 0, w: 0}
   paintAdd: {x: 0, y: 0}
   gateByWear: 0
   radius: 0.04

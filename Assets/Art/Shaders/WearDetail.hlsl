@@ -14,6 +14,8 @@ struct WearColors
     half detailStrength;
     half texturedCoating;
     half3 substrate;
+    half dustRagged;   // рваный пушистый край пыли
+    half cleanGlow;    // свечение чистой кромки
 };
 
 struct WearNoise
@@ -67,7 +69,7 @@ WearNoise WearNoiseAt(float3 detailPos)
 }
 
 // Нижние слои: ржавчина и старая краска
-half3 WearBelow(half3 albedo, half4 w, WearNoise N, WearColors C, out half rustA, out half paintA)
+half3 LegacyWearBelow(half3 albedo, half4 w, WearNoise N, WearColors C, out half rustA, out half paintA)
 {
     half3 decoratedSurface = albedo;
     albedo = lerp(albedo, C.substrate * (1.0h + (N.mid - 0.5h) * 0.08h), C.texturedCoating);
@@ -96,7 +98,7 @@ half3 WearBelow(half3 albedo, half4 w, WearNoise N, WearColors C, out half rustA
 }
 
 // Верхние слои: грязь и пыль
-half3 WearAbove(half3 albedo, half4 w, WearNoise N, WearColors C, out half dirtA, out half dustA)
+half3 LegacyWearAbove(half3 albedo, half4 w, WearNoise N, WearColors C, out half dirtA, out half dustA)
 {
     // Thin dirt stains the material; only a thick deposit hides its pattern.
     dirtA = saturate(w.g) * (0.78h + N.mid * 0.22h);
@@ -104,15 +106,62 @@ half3 WearAbove(half3 albedo, half4 w, WearNoise N, WearColors C, out half dirtA
     half3 dcol = lerp(stain, C.dirt * (0.75h + N.broad * 0.18h), smoothstep(0.65h, 1.0h, w.g));
     albedo = lerp(albedo, dcol, dirtA);
 
-    // Пыль: светлая мягкая вуаль с крупинками
-    // Dust is a soft matte deposit: reduced contrast, warm desaturation, faint grain.
-    dustA = saturate(w.r) * (0.88h + N.mid * 0.12h);
-    half luminance = dot(albedo, half3(0.2126h, 0.7152h, 0.0722h));
-    half3 faded = lerp(albedo, luminance.xxx, 0.22h);
-    half3 ducol = lerp(faded * 0.92h, C.dust, 0.48h);
-    ducol *= 1.0h + (N.fine - 0.5h) * 0.035h;
-    albedo = lerp(albedo, ducol, saturate(dustA * C.dustOpacity));
+    // Пыль в стиле Undusted: плотная матовая серая вуаль, под ней предмет виден приглушённым.
+    // Край рваный и пушистый, а у линии очистки вспыхивает чистый цвет.
+    half raw = saturate(w.r);
+    half rag = ((N.mid - 0.5h) * 0.5h + (N.fine - 0.5h) * 0.3h) * C.dustRagged;
+    half thick = smoothstep(0.28h, 0.62h, raw + rag);
+    dustA = thick;
+
+    half lum = dot(albedo, half3(0.2126h, 0.7152h, 0.0722h));
+    half3 faded = lerp(albedo, lum.xxx, 0.55h);
+    half3 veil = C.dust * (0.97h + N.broad * 0.06h);
+    veil *= 1.0h + (N.fine - 0.5h) * 0.05h;
+    half3 ducol = lerp(faded, veil, 0.72h);
+    half3 cleaned = albedo;
+    albedo = lerp(albedo, ducol, thick * C.dustOpacity);
+
+    half edge = thick * (1.0h - thick) * 4.0h;
+    albedo += cleaned * edge * C.cleanGlow * 0.35h;
     return albedo;
+}
+
+
+// Integrated soft surface: channel values are continuous coverage. Noise changes
+// color inside a layer, never the boundary left by a cleaning tool.
+half3 WearBelow(half3 albedo, half4 w, WearNoise N, WearColors C, out half rustA, out half paintA)
+{
+    if (_SoftVisualStyle < 0.5h)
+        return LegacyWearBelow(albedo, w, N, C, rustA, paintA);
+
+    half3 decorated = albedo;
+    albedo = lerp(albedo, C.substrate, C.texturedCoating);
+    rustA = saturate(w.a);
+    half3 oxide = C.rust * lerp(0.58h, 0.88h, smoothstep(0.25h, 0.75h, N.broad));
+    oxide *= 0.95h + N.mid * 0.10h;
+    albedo = lerp(albedo, oxide, rustA);
+
+    paintA = saturate(w.b);
+    half3 paint = lerp(C.oldPaint * (0.98h + N.broad * 0.04h), decorated, C.texturedCoating);
+    return lerp(albedo, paint, paintA);
+}
+
+half3 WearAbove(half3 albedo, half4 w, WearNoise N, WearColors C, out half dirtA, out half dustA)
+{
+    if (_SoftVisualStyle < 0.5h)
+        return LegacyWearAbove(albedo, w, N, C, dirtA, dustA);
+
+    dirtA = saturate(w.g);
+    dustA = saturate(w.r);
+    half lum = dot(albedo, half3(0.2126h, 0.7152h, 0.0722h));
+    half3 muted = lerp(albedo, lum.xxx, _FilmDesaturation * 0.65h);
+    half3 dirt = lerp(muted * 0.6h, C.dirt * (0.72h + N.broad * 0.12h), _FilmOpacity);
+    albedo = lerp(albedo, dirt, dirtA);
+
+    lum = dot(albedo, half3(0.2126h, 0.7152h, 0.0722h));
+    muted = lerp(albedo, lum.xxx, _FilmDesaturation);
+    half3 dust = lerp(muted * 0.60h, C.dust * (0.94h + N.broad * 0.08h), _FilmOpacity);
+    return lerp(albedo, dust, dustA * C.dustOpacity);
 }
 
 #endif

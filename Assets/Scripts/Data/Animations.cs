@@ -105,16 +105,14 @@ namespace Data
             tool.DOKill();
             tool.SetParent(targetPoint, true);
 
-            Quaternion tilt = targetPoint.rotation *
-                              Quaternion.Euler(-12f, 8f, 5f);
-
+            Quaternion tilt = targetPoint.rotation * Quaternion.Euler(-12f, 8f, 5f);
             float moveDuration = duration * 0.8f;
 
             return DOTween.Sequence()
                 .SetTarget(tool)
                 .SetLink(tool.gameObject)
                 .Append(
-                    tool.DOLocalMove(Vector3.zero, moveDuration)
+                    tool.DOMove(targetPoint.position, moveDuration)
                         .SetEase(Ease.OutCubic)
                 )
                 .Join(
@@ -122,8 +120,8 @@ namespace Data
                         .SetEase(Ease.OutSine)
                 )
                 .Append(
-                    tool.DOLocalRotateQuaternion(
-                        Quaternion.identity,
+                    tool.DORotateQuaternion(
+                        targetPoint.rotation,
                         duration * 0.2f
                     ).SetEase(Ease.OutSine)
                 );

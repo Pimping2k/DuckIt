@@ -2,6 +2,18 @@ Shader "Restoration/ToonRestorable"
 {
     Properties
     {
+        [Header(Soft restoration look)]
+        [Toggle] _SoftVisualStyle ("Soft Surface Visuals", Float) = 1
+        _SoftShadowTint ("Soft Shadow Tint", Color) = (0.67,0.64,0.69,1)
+        _SoftShadowStrength ("Soft Shadow Strength", Range(0,1)) = 0.6
+        _SoftLightStep ("Soft Light Position", Range(0,1)) = 0.36
+        _SoftLightSoftness ("Soft Light Transition", Range(0.01,0.5)) = 0.28
+        _SoftHighlight ("Soft Highlight Strength", Range(0,1)) = 0.22
+        _SoftRim ("Soft Edge Light", Range(0,0.3)) = 0.015
+        _DustFilmColor ("Dust Film Color", Color) = (0.27,0.25,0.21,1)
+        _FilmOpacity ("Dirt Film Opacity", Range(0,1)) = 0.88
+        _FilmDesaturation ("Color Hidden By Dust", Range(0,1)) = 0.75
+
         [Header(Base bare material UV0)]
         _BaseMap ("Bare Material Texture", 2D) = "white" {}
         _BaseColor ("Bare Material Color", Color) = (0.87, 0.66, 0.47, 1)
@@ -12,13 +24,16 @@ Shader "Restoration/ToonRestorable"
         _MaskUVSet ("Mask UV: 0 = UV0, 1 = UV1", Float) = 1
 
         [Header(Layer colors)]
-        _DustColor ("Dust", Color) = (0.85, 0.74, 0.64, 1)
+        _DustColor ("Dust", Color) = (0.80, 0.76, 0.72, 1)
         _DirtColor ("Dirt", Color) = (0.48, 0.33, 0.27, 1)
         _OldPaintColor ("Old Paint", Color) = (0.88, 0.44, 0.37, 1)
         [Toggle] _TexturedCoating ("Original Texture On Coating", Float) = 0
         _SubstrateColor ("Exposed Ceramic", Color) = (0.64, 0.48, 0.34, 1)
         _RustColor ("Rust", Color) = (0.81, 0.42, 0.17, 1)
-        _DustOpacity ("Dust Opacity", Range(0, 1)) = 0.62
+        _DustOpacity ("Dust Opacity", Range(0, 1)) = 0.8
+        _DustPixels ("Dust Pixel Grid (0 = smooth)", Float) = 0
+        _DustRagged ("Dust Ragged Edge", Range(0, 1)) = 0.5
+        _CleanGlow ("Clean Edge Glow", Range(0, 1)) = 0.5
         _DetailScale ("Wear Detail Scale", Float) = 30
         _DetailStrength ("Wear Detail Strength", Range(0, 1)) = 0.6
         [HideInInspector] _WearCoordinates ("Wear Coordinates", Vector) = (0,0,0,1)
@@ -68,11 +83,24 @@ Shader "Restoration/ToonRestorable"
         TEXTURE2D(_PaintMask); SAMPLER(sampler_PaintMask);
 
         CBUFFER_START(UnityPerMaterial)
+            half _SoftVisualStyle;
+            half4 _SoftShadowTint;
+            half _SoftShadowStrength;
+            half _SoftLightStep;
+            half _SoftLightSoftness;
+            half _SoftHighlight;
+            half _SoftRim;
+            half4 _DustFilmColor;
+            half _FilmOpacity;
+            half _FilmDesaturation;
             float4 _BaseMap_ST;
             half4 _BaseColor;
             half _MaskUVSet;
             half4 _DustColor;
             half _DustOpacity;
+            half _DustPixels;
+            half _DustRagged;
+            half _CleanGlow;
             half _DetailScale;
             half _DetailStrength;
             float4 _WearCoordinates;
@@ -117,6 +145,7 @@ Shader "Restoration/ToonRestorable"
             Tags { "LightMode" = "UniversalForward" }
 
             HLSLPROGRAM
+            #pragma target 3.0
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
@@ -124,10 +153,9 @@ Shader "Restoration/ToonRestorable"
             #pragma multi_compile _ _FORWARD_PLUS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-            #pragma multi_compile_fog
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "FirewatchLighting.hlsl"
+            #include "RestorableLighting.hlsl"
             #include "WearDetail.hlsl"
 
             struct Attributes
@@ -173,6 +201,9 @@ Shader "Restoration/ToonRestorable"
                 // ---- Слои состояния ----
                 half3 bare = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb * _BaseColor.rgb;
                 half4 w = SAMPLE_TEXTURE2D(_WearMask, sampler_WearMask, i.uv1);
+                // пыль крупными пикселями, как в Undusted
+                float2 uvq = _SoftVisualStyle < 0.5 && _DustPixels > 0.5 ? (floor(i.uv1 * _DustPixels) + 0.5) / _DustPixels : i.uv1;
+                w.r = SAMPLE_TEXTURE2D(_WearMask, sampler_WearMask, uvq).r;
                 half3 p = SAMPLE_TEXTURE2D(_PaintMask, sampler_PaintMask, i.uv1).rgb;
 
                 half newP = EdgeMask(p.r);
@@ -180,7 +211,7 @@ Shader "Restoration/ToonRestorable"
                 half wetV = p.b;   // влажность от губки
 
                 WearColors C;
-                C.dust = _DustColor.rgb;
+                C.dust = lerp(_DustColor.rgb, _DustFilmColor.rgb, _SoftVisualStyle);
                 C.dirt = _DirtColor.rgb;
                 C.oldPaint = _OldPaintColor.rgb;
                 C.texturedCoating = _TexturedCoating;
@@ -188,6 +219,8 @@ Shader "Restoration/ToonRestorable"
                 C.rust = _RustColor.rgb;
                 C.dustOpacity = _DustOpacity;
                 C.detailStrength = _DetailStrength;
+                C.dustRagged = _DustRagged;
+                C.cleanGlow = _CleanGlow;
                 WearNoise N = WearNoiseAt((i.posOS * _WearCoordinates.w + _WearCoordinates.xyz
                     + _WearDetailOffset.xyz) * _DetailScale);
                 N.broad = lerp(0.5h, N.broad, C.detailStrength);
@@ -199,7 +232,7 @@ Shader "Restoration/ToonRestorable"
                 half3 albedo = WearBelow(bare, w, N, C, rustA, paintA);
                 albedo = lerp(albedo, _NewPaintColor.rgb, newP);
                 albedo = WearAbove(albedo, w, N, C, dirtA, dustA);
-                albedo *= 1.0h - wetV * 0.18h;   // мокрое темнее
+                albedo *= 1.0h - wetV * lerp(0.18h, 0.08h, _SoftVisualStyle);   // мокрое темнее
 
                 // насколько поверхность "потускнела": износ гасит блик и рим
                 half coatingDullness = paintA * lerp(1.0h, 0.18h, _TexturedCoating);
@@ -207,22 +240,22 @@ Shader "Restoration/ToonRestorable"
 
                 // ---- Освещение (общее для всех шейдеров игры) ----
                 FWParams P;
-                P.shadowTint = _ShadowTint.rgb;
-                P.shadowAmount = _ShadowAmount;
-                P.shadowStep = _ShadowStep;
-                P.shadowSoft = _ShadowSoft;
-                P.shadingBlend = _ShadingBlend;
+                P.shadowTint = lerp(_ShadowTint.rgb, _SoftShadowTint.rgb, _SoftVisualStyle);
+                P.shadowAmount = lerp(_ShadowAmount, _SoftShadowStrength, _SoftVisualStyle);
+                P.shadowStep = lerp(_ShadowStep, _SoftLightStep, _SoftVisualStyle);
+                P.shadowSoft = lerp(_ShadowSoft, _SoftLightSoftness, _SoftVisualStyle);
+                P.shadingBlend = lerp(_ShadingBlend, 1.0h, _SoftVisualStyle);
                 P.lightMix = _LightContribution;
-                P.skyAmbient = _SkyAmbient;
+                P.skyAmbient = _SkyAmbient * (1.0h - _SoftVisualStyle);
                 P.lampBoost = _LampBoost;
                 P.floorY = _FloorY;
                 P.floorHeight = _FloorHeight;
-                P.floorDark = _FloorDark;
+                P.floorDark = lerp(_FloorDark, 1.0h, _SoftVisualStyle);
 
                 float3 nWS = normalize(i.normalWS);
                 // Surface gradient: a small raised edge on the remaining coating.
                 // Derivatives follow the mask on the actual surface, independent of UV orientation.
-                float coating = (paintA * (1.0h - newP) + rustA * 0.35h + dirtA * 0.1h) * _WearRelief;
+                float coating = (paintA * (1.0h - newP) + rustA * 0.35h + dirtA * 0.1h) * _WearRelief * lerp(1.0h, 0.2h, _SoftVisualStyle);
                 float3 dpdx = ddx(i.positionWS), dpdy = ddy(i.positionWS);
                 float3 r1 = cross(dpdy, nWS), r2 = cross(nWS, dpdx);
                 float det = dot(dpdx, r1);
@@ -237,22 +270,23 @@ Shader "Restoration/ToonRestorable"
                 // ---- Блик: лак + чуть свежей краски, износ гасит ----
                 half substrateGloss = _BareGloss * lerp(1.0h, paintA, _TexturedCoating);
                 half surfaceGloss = lerp(substrateGloss, _PaintGloss, newP);
+                surfaceGloss = lerp(surfaceGloss, lerp(_SoftHighlight, max(_SoftHighlight, _PaintGloss), newP), _SoftVisualStyle);
                 half gloss = saturate(surfaceGloss * (1.0h - wear) + varn * (1.0h - wear) + wetV * 0.7h);
-                float3 h = normalize(mainLight.direction + viewDir);
+                float3 h = SafeNormalize(mainLight.direction + viewDir);
                 half ndh = saturate(dot(nWS, h));
                 half thr = 1.0h - _GlintSize * 0.25h;
                 half soft = max(0.0005h, _GlintSoft * 0.05h);
-                half glint = smoothstep(thr - soft, thr + soft, ndh) * lit * gloss;
-                half broadGlint = pow(ndh, 32.0h) * lit * gloss * 0.3h;
+                half glint = smoothstep(thr - soft, thr + soft, ndh) * lit * gloss * (1.0h - _SoftVisualStyle);
+                half broadGlint = lerp(pow(ndh, 32.0h) * 0.3h, pow(ndh, 24.0h) * 0.75h, _SoftVisualStyle) * lit * gloss;
                 col += _GlintColor.rgb * (glint + broadGlint) * mainLight.color;
 
                 // ---- Рим ----
                 half rim = 1.0h - saturate(dot(nWS, viewDir));
                 half rimThr = 1.0h - _RimSize;
                 rim = smoothstep(rimThr, rimThr + _RimSoft, rim);
-                col += _GlintColor.rgb * rim * _RimStrength * (1.0h - wear);
+                col += _GlintColor.rgb * rim * lerp(_RimStrength, _SoftRim, _SoftVisualStyle) * (1.0h - wear) * lerp(1.0h, lit, _SoftVisualStyle);
 
-                col = MixFog(col, i.fogFactor);
+                col = FWFog(col, i.positionWS);
                 return half4(col, 1);
             }
             ENDHLSL
@@ -262,6 +296,7 @@ Shader "Restoration/ToonRestorable"
         Pass
         {
             Name "Outline"
+            Tags { "LightMode" = "SRPDefaultUnlit" }
             Cull Front
 
             HLSLPROGRAM
@@ -279,7 +314,7 @@ Shader "Restoration/ToonRestorable"
                 float2 nCS = TransformWorldToHClipDir(nWS).xy;
                 nCS = normalize(nCS + float2(1e-5, 1e-5));
                 // ширина постоянна в пикселях
-                clip.xy += nCS / _ScreenParams.xy * _OutlineWidth * clip.w * 2.0;
+                clip.xy += nCS / _ScreenParams.xy * _OutlineWidth * (1.0h - _SoftVisualStyle) * clip.w * 2.0;
                 o.positionCS = clip;
                 return o;
             }

@@ -1,23 +1,28 @@
 #ifndef FIREWATCH_LIGHTING_INCLUDED
 #define FIREWATCH_LIGHTING_INCLUDED
 
-// Общее освещение для всех шейдеров игры. Подключать после Core.hlsl и Lighting.hlsl.
-// Мягкие тени цветом, окружение из градиента сцены (Environment Lighting), лампы, затемнение у пола.
-// Написано под URP 17 (Unity 6000.0) с Forward+.
+// Общее освещение + туман. Подключать после Core.hlsl и Lighting.hlsl. URP 17, Forward+.
+
+// Глобальные параметры. Выставляет FWAtmosphere.cs
+float4 _FWFogNear;    // цвет тумана вблизи
+float4 _FWFogFar;     // цвет тумана вдали (он же горизонт неба)
+float4 _FWSunGlow;    // подсветка тумана в сторону солнца
+float4 _FWFogParams;  // x=start, y=end, z=высота базы, w=спад по высоте
+float4 _FWSunDir;     // направление НА солнце (из твоего неба)
 
 struct FWParams
 {
-    half3 shadowTint;     // цвет теней (лавандовый)
-    half shadowAmount;    // насколько тень тянется к shadowTint
-    half shadowStep;      // где проходит граница света и тени
-    half shadowSoft;      // мягкость границы (чем больше, тем размытее, "нарисованнее")
-    half shadingBlend;    // 0 = плавный объём, 1 = плоские toon-зоны
-    half lightMix;        // насколько цвет солнца красит материал
-    half skyAmbient;      // сила окраски теней цветом неба и земли
-    half lampBoost;       // сила ламп и других источников света
-    half floorY;          // высота пола в мире
-    half floorHeight;     // на какой высоте затемнение пропадает
-    half floorDark;       // яркость у пола (1 = без затемнения)
+    half3 shadowTint;
+    half shadowAmount;
+    half shadowStep;
+    half shadowSoft;
+    half shadingBlend;
+    half lightMix;
+    half skyAmbient;
+    half lampBoost;
+    float floorY;
+    half floorHeight;
+    half floorDark;
 };
 
 half FWBand(half ndl01, half stepV, half soft, half blend)
@@ -30,6 +35,36 @@ half3 FWAdditional(Light l, float3 n, FWParams P)
     half ndl = dot(n, l.direction) * 0.5h + 0.5h;
     half b = FWBand(ndl, P.shadowStep, P.shadowSoft, P.shadingBlend);
     return l.color * (b * l.distanceAttenuation * l.shadowAttenuation);
+}
+
+// Гранёные нормали из производных позиции (amount: 0 = как в меше, 1 = low-poly)
+float3 FWFlatNormal(float3 posWS, float3 nWS, half amount)
+{
+    float3 f = normalize(cross(ddy(posWS), ddx(posWS)));
+    f = dot(f, nWS) < 0 ? -f : f;
+    return normalize(lerp(nWS, f, amount));
+}
+
+// Атмосферный туман: дистанция + высота + свечение к солнцу
+half3 FWFog(half3 col, float3 posWS)
+{
+    if (_FWFogParams.y <= 0.0) return col;
+
+    float3 toP = posWS - _WorldSpaceCameraPos;
+    float dist = length(toP);
+    float3 v = toP / max(dist, 0.001);
+
+    float f = saturate((dist - _FWFogParams.x) / max(_FWFogParams.y - _FWFogParams.x, 0.001));
+    f = f * f * (3.0 - 2.0 * f);
+
+    float h = saturate((posWS.y - _FWFogParams.z) * _FWFogParams.w);
+    f *= lerp(1.0, 0.35, h);
+
+    half3 fogCol = lerp(_FWFogNear.rgb, _FWFogFar.rgb, f);
+    half sun = pow(saturate(dot(v, _FWSunDir.xyz)), 4.0);
+    fogCol += _FWSunGlow.rgb * sun * f;
+
+    return lerp(col, fogCol, f);
 }
 
 half3 FWShade(half3 albedo, float3 nWS, float3 posWS, float4 posCS, FWParams P,
@@ -46,7 +81,6 @@ half3 FWShade(half3 albedo, float3 nWS, float3 posWS, float4 posCS, FWParams P,
     lit = FWBand(ndl, P.shadowStep, P.shadowSoft, P.shadingBlend)
         * mainLight.shadowAttenuation * mainLight.distanceAttenuation;
 
-    // Тень: тянется к фиолетовому и окрашивается градиентом окружения (небо сверху, земля снизу)
     half3 amb = SampleSH(nWS);
     half3 shadowCol = albedo * lerp(half3(1, 1, 1), P.shadowTint * 1.4h, P.shadowAmount);
     shadowCol *= lerp(1.0h, saturate(amb * 2.0h), P.skyAmbient);
@@ -54,7 +88,6 @@ half3 FWShade(half3 albedo, float3 nWS, float3 posWS, float4 posCS, FWParams P,
     half3 lightTint = lerp(half3(1, 1, 1), mainLight.color, P.lightMix);
     half3 col = lerp(shadowCol, albedo, lit) * lightTint;
 
-    // Лампы и прочие источники света
     half3 add = 0;
     #if defined(_ADDITIONAL_LIGHTS) || defined(_ADDITIONAL_LIGHTS_VERTEX)
         InputData inputData = (InputData)0;
@@ -78,7 +111,6 @@ half3 FWShade(half3 albedo, float3 nWS, float3 posWS, float4 posCS, FWParams P,
     #endif
     col += albedo * add * P.lampBoost;
 
-    // Затемнение у пола: комната "прижимается" к земле
     half g = saturate((posWS.y - P.floorY) / max(0.01h, P.floorHeight));
     col *= lerp(P.floorDark, 1.0h, g);
 

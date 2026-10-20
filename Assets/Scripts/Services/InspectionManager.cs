@@ -8,6 +8,7 @@ using Gameplay.Tools.ToolPlacement;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Restorable;
 using Unity.Cinemachine;
+using Unity.VisualScripting.InputSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -30,6 +31,8 @@ namespace Services
         private bool _isExiting;
         private bool _isRotating;
         private bool _isReady;
+        private bool _rotationLocked;
+        private bool _movementLocked;
         
         private Transform _initialItemParent;
         private InspectionInteractable _currentInspectionItem;
@@ -38,6 +41,8 @@ namespace Services
 
         public bool IsRotating => _isRotating;
         public event Action InspectionFinished;
+        public event Action RotationStarted;
+        public event Action RotationFinished;
 
         private void Awake()
         {
@@ -50,6 +55,12 @@ namespace Services
             
             _inputService.Cleaning.Back.performed += OnBackPerformed;
             _inputService.Cleaning.Rotating.performed += OnRotatingPerformed;
+            
+            _inputService.Cleaning.LockMovement.performed += OnLockMovementPerformed;
+            _inputService.Cleaning.LockMovement.canceled += OnLockMovementCanceled;
+            
+            _inputService.Cleaning.LockRotate.performed += OnLockRotatePerformed;
+            _inputService.Cleaning.LockRotate.canceled += OnLockRotateCanceled;
         }
 
         private void OnDestroy()
@@ -59,16 +70,29 @@ namespace Services
             
             _inputService.Cleaning.Back.performed -= OnBackPerformed;
             _inputService.Cleaning.Rotating.performed -= OnRotatingPerformed;
+            
+            _inputService.Cleaning.LockMovement.performed -= OnLockMovementPerformed;
+            _inputService.Cleaning.LockMovement.canceled -= OnLockMovementCanceled;
+            
+            _inputService.Cleaning.LockRotate.performed -= OnLockRotatePerformed;
+            _inputService.Cleaning.LockRotate.canceled -= OnLockRotateCanceled;
         }
 
         private void Update()
         {
-            SmoothRotation();
+            if (_isReady && _currentInspectionItem && _isRotating)
+            {
+                _currentInspectionItem.transform.rotation = Quaternion.Slerp(
+                    _currentInspectionItem.transform.rotation,
+                    _targetRotation,
+                    Time.deltaTime * _rotationSmoothness
+                );
+            }
         }
 
         public async UniTaskVoid StartInspection(InspectionInteractable inspectableItem)
         {
-            if (inspectableItem == null || _isExiting)
+            if (!inspectableItem || _isExiting)
                 return;
 
             _initialItemParent = inspectableItem.transform.parent;
@@ -114,7 +138,8 @@ namespace Services
             {
                 ResetState();
             }
-
+            return;
+            
             void ResetState()
             {
                 _currentInspectionItem = null;
@@ -128,43 +153,55 @@ namespace Services
         {
             if (_currentInspectionItem == null || _isExiting || !_isRotating)
                 return;
-
+            
             Vector2 mouseDelta = obj.ReadValue<Vector2>();
 
-            if (mouseDelta != Vector2.zero)
+            if (!mouseDelta.Equals(Vector2.zero))
             {
-                Transform camTransform = _cameraService.Camera ? _cameraService.Camera.transform : null;
+                Transform camTransform = _cameraService.Camera.transform;
 
                 if (camTransform)
                 {
-                    Quaternion yaw = Quaternion.AngleAxis(-mouseDelta.x * _rotationSensitivity, camTransform.up);
-                    Quaternion pitch = Quaternion.AngleAxis(mouseDelta.y * _rotationSensitivity, camTransform.right);
+                    float deltaX = mouseDelta.x;
+                    float deltaY = mouseDelta.y;
 
-                    _targetRotation = yaw * pitch * _targetRotation;
+                    if (_rotationLocked)
+                    {
+                        Quaternion rotX = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, Vector3.up);
+                        _targetRotation = rotX * _targetRotation;
+                    }
+                    else if (_movementLocked)
+                    {
+                        Quaternion rotRoll = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, camTransform.forward);
+                        Quaternion rotPitch = Quaternion.AngleAxis(deltaY * _rotationSensitivity, camTransform.right);
+
+                        _targetRotation = rotRoll * rotPitch * _targetRotation;
+                    }
+                    else
+                    {
+                        Quaternion rotX = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, Vector3.up);
+                        Quaternion rotY = Quaternion.AngleAxis(deltaY * _rotationSensitivity, camTransform.right);
+
+                        _targetRotation = rotX * rotY * _targetRotation;
+                    }
                 }
             }
-        }
-
-        private void SmoothRotation()
-        {
-            if (_currentInspectionItem == null || _isExiting)
-                return;
-
-            _currentInspectionItem.transform.rotation = Quaternion.Slerp(
-                _currentInspectionItem.transform.rotation,
-                _targetRotation,
-                Time.deltaTime * _rotationSmoothness
-            );
         }
 
         private void OnSecondaryActionPerformed(InputAction.CallbackContext obj)
         {
             _isRotating = true;
+            
+            if (_currentInspectionItem != null)
+                _targetRotation = _currentInspectionItem.transform.rotation;
+
+            RotationStarted?.Invoke();
         }
 
         private void OnSecondaryActionCanceled(InputAction.CallbackContext obj)
         {
             _isRotating = false;
+            RotationFinished?.Invoke();
         }
 
         private void OnBackPerformed(InputAction.CallbackContext obj)
@@ -173,6 +210,26 @@ namespace Services
                 return;
             
             FinishInspection(_currentInspectionItem);
+        }
+        
+        private void OnLockRotatePerformed(InputAction.CallbackContext obj)
+        {
+            _rotationLocked = true;
+        }
+
+        private void OnLockRotateCanceled(InputAction.CallbackContext obj)
+        {
+            _rotationLocked = false;
+        }
+
+        private void OnLockMovementPerformed(InputAction.CallbackContext obj)
+        {
+            _movementLocked = true;
+        }
+
+        private void OnLockMovementCanceled(InputAction.CallbackContext obj)
+        {
+            _movementLocked = false;
         }
 
 #if UNITY_EDITOR

@@ -1051,6 +1051,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToolUse",
+                    "type": "Button",
+                    "id": "11352015-b365-4410-9c8f-3e0e24d0842f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LockRotate",
+                    "type": "Button",
+                    "id": "14d85ced-a005-4537-8b44-e657bef68224",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LockMovement",
+                    "type": "Button",
+                    "id": "2ac12b19-a9cf-4411-97f3-8ba725148db9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1095,6 +1122,39 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Rotating",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "711f0fdf-9d48-43cd-9996-de90a7c5ffa5",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ToolUse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eddcd2f7-fb68-4d76-834f-25ec6f69a693",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "LockRotate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1eae1cd7-7ca6-433d-a2ed-42b669b87dc9",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "LockMovement",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -26,6 +26,24 @@ namespace Restorable
         public WearPreset preset;
         public Color newPaintColor = new Color(0.55f, 0.80f, 0.75f);
 
+        [Header("Surface visuals")]
+        [Tooltip("Мягкий свет и плавная очистка исходной текстуры вместо рваной пыли и яркого контура")]
+        public bool softSurfaceVisuals = true;
+        public Color dustFilmColor = new Color(0.27f, 0.25f, 0.21f, 1f);
+        [Range(0f, 1f)] public float filmOpacity = 0.88f;
+        [Range(0f, 1f)] public float dustDesaturation = 0.75f;
+
+        [Header("Dust coverage")]
+        // Retain serialized legacy fields so existing prefabs do not lose data.
+        [Tooltip("Размер сетки пыли в пикселях. 0 = гладкая пыль, 48-128 = крупные пиксели")]
+        [HideInInspector] public float dustPixels = 0f;
+        [HideInInspector, Range(0, 1)] public float dustRagged = 0.5f;
+        [HideInInspector, Range(0, 1)] public float cleanGlow = 0.5f;
+        [Range(0, 1)] public float dustOpacity = 0.8f;
+        [Tooltip("Пыль лежит ровным слоем по всему предмету, а не пятнами из пресета")]
+        public bool uniformDust = true;
+        public Color dustColor = new Color(0.80f, 0.76f, 0.72f);
+
         [Tooltip("0 = новый рисунок при создании. Сохраняйте выданное значение вместе с предметом; одинаковый seed воспроизводит износ.")]
         public int wearSeed;
         WearLayer[] _layers;
@@ -109,7 +127,10 @@ namespace Restorable
                 return;
             }
             if (meshFilter == null) meshFilter = targetRenderer.GetComponent<MeshFilter>();
-            if (toonShader == null) toonShader = Shader.Find("Restoration/ToonRestorable");
+            // The earlier visual prototypes rendered only a subset of wear channels.
+            // Route those known prototypes to the integrated shader; keep custom shaders.
+            if (toonShader == null || IsVisualPrototype(toonShader))
+                toonShader = Shader.Find("Restoration/ToonRestorable");
             if (stampShader == null) stampShader = Shader.Find("Hidden/Restoration/Stamp");
             if (meshFilter == null || meshFilter.sharedMesh == null || toonShader == null || stampShader == null)
             {
@@ -203,10 +224,19 @@ namespace Restorable
                 if (c != mc) c.enabled = false;
         }
 
+        static bool IsVisualPrototype(Shader shader)
+        {
+            if (!shader) return false;
+            return shader.name == "Restoration/CozySurface" || shader.name == "Restoration/SurfaceWipe"
+                || shader.name == "Restoration/PainterlyRestorable" || shader.name == "Restoration/CozySatin";
+        }
+
         void SetupMaterial()
         {
             var src = targetRenderer.sharedMaterial;
             _mat = src && src.shader == toonShader ? new Material(src) : new Material(toonShader);
+            if (src && IsVisualPrototype(src.shader))
+                _mat.CopyPropertiesFromMaterial(src);
             _mat.name = (src ? src.name : "Item") + " (Restorable)";
 
             if (src != null)
@@ -228,7 +258,7 @@ namespace Restorable
                     _mat.SetFloat("_BareGloss", Mathf.Lerp(0.04f, 0.28f, src.GetFloat("_Smoothness")));
             }
 
-            _mat.SetColor(DustColorId, _layers[0].color);
+            _mat.SetColor(DustColorId, dustColor);
             _mat.SetColor(DirtColorId, _layers[1].color);
             _mat.SetColor(OldPaintId, _layers[2].color);
             _mat.SetColor(RustColorId, _layers[3].color);
@@ -236,6 +266,17 @@ namespace Restorable
             _mat.SetFloat("_TexturedCoating", preset.texturedCoating && _layers[2].enabled ? 1f : 0f);
             _mat.SetColor("_SubstrateColor", preset.substrateColor);
             _mat.SetFloat(MaskUVId, UseUV0 ? 0f : 1f);
+            _mat.SetFloat("_DustPixels", dustPixels);
+            _mat.SetFloat("_DustRagged", dustRagged);
+            _mat.SetFloat("_CleanGlow", cleanGlow);
+            _mat.SetFloat("_DustOpacity", dustOpacity);
+            if (_mat.HasProperty("_SoftVisualStyle"))
+            {
+                _mat.SetFloat("_SoftVisualStyle", softSurfaceVisuals ? 1f : 0f);
+                _mat.SetColor("_DustFilmColor", dustFilmColor);
+                _mat.SetFloat("_FilmOpacity", filmOpacity);
+                _mat.SetFloat("_FilmDesaturation", dustDesaturation);
+            }
 
             targetRenderer.sharedMaterial = _mat;
         }
@@ -440,7 +481,7 @@ namespace Restorable
             {
                 if (!d.on[i]) continue;
                 px[i] = new Color32(
-                    WearPatterns.Sample(_layers[0], d, i, _wearOffsets[0]),
+                    uniformDust && _layers[0].enabled && _layers[0].coverage > 0f ? (byte)255 : WearPatterns.Sample(_layers[0], d, i, _wearOffsets[0]),
                     WearPatterns.Sample(_layers[1], d, i, _wearOffsets[1]),
                     WearPatterns.Sample(_layers[2], d, i, _wearOffsets[2]),
                     WearPatterns.Sample(_layers[3], d, i, _wearOffsets[3]));

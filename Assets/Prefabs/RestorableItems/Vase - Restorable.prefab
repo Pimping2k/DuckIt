@@ -82,6 +82,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   preset: {fileID: 11400000, guid: 4120154967134e02a16b5749b3fd5da9, type: 2}
   newPaintColor: {r: 0.8867924, g: 0.69855815, b: 0.73384917, a: 1}
+  dustPixels: 48
+  dustRagged: 0.5
+  cleanGlow: 0.5
+  dustOpacity: 0.8
+  uniformDust: 1
+  dustColor: {r: 0.8, g: 0.76, b: 0.72, a: 1}
+  wearSeed: 2147483647
   maskSize: 1024
   toonShader: {fileID: 4800000, guid: bdf354f2858f68045a3022d6893690d4, type: 3}
   stampShader: {fileID: 4800000, guid: 98e3351e6416e0c438dd7dddc6a5ca76, type: 3}
@@ -192,6 +199,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Vase
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0ce83c9cb0a57734a9f43bb584998ea7, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -212,4 +223,3 @@ MeshFilter:
   m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 0ce83c9cb0a57734a9f43bb584998ea7, type: 3}
   m_PrefabInstance: {fileID: 1700494587312068188}
   m_PrefabAsset: {fileID: 0}
-

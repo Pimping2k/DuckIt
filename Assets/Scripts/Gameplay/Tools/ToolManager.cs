@@ -12,6 +12,7 @@ namespace Gameplay.Tools
         
         private IToolPlacement _lastPlacement;
         
+        public bool IsLocked { get; private set; }
         public BaseTool CurrentTool { get; private set; }
         public IToolPlacement CurrentToolPlacement { get; private set; }
         
@@ -24,6 +25,9 @@ namespace Gameplay.Tools
 
         public void ChangeTool(BaseTool tool)
         {
+            if(IsLocked)
+                return;
+            
             if (CurrentTool == tool)
                 return;
 
@@ -52,6 +56,11 @@ namespace Gameplay.Tools
                 return;
 
             RequestChangePlacement(_lastPlacement);
+        }
+
+        public void ChangeLockedState(bool state)
+        {
+            IsLocked = state;
         }
     }
 }

@@ -65,6 +65,9 @@ namespace Gameplay.Tools
 
         private void CreateTool(int index)
         {
+            if(_toolManager.IsLocked)
+                return;
+            
             int length = _toolMapData.Length;
             _currentToolIndex = (index % length + length) % length;
 

@@ -46,8 +46,10 @@ Shader "Hidden/Restoration/Stamp"
 
                 // Износ, который виден глазами: пыль, грязь, ржавчина (ржавчина скрыта старой краской)
                 float4 w = tex2D(_GateTex, i.uv);
-                float visible = max(step(0.5, w.r),
-                                max(step(0.5, w.g), step(0.5, w.a) * (1.0 - step(0.5, w.b))));
+                // Continuous layers remain visible below 0.5 coverage. Do not let
+                // paint/varnish pass through a thin dirty film left by cleaning.
+                float residue = max(saturate(w.r), max(saturate(w.g), saturate(w.a) * (1.0 - saturate(w.b))));
+                float visible = step(0.015, residue);
                 float gateV = lerp(1.0, 1.0 - visible, _GateByWear);
                 float4 gate = float4(gateV, gateV, 1.0, 1.0);   // ограничение только для краски и лака
 

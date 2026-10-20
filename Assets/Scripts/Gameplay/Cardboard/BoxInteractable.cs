@@ -131,12 +131,14 @@ namespace Gameplay.Cardboard
                 return;
 
             _isBusy = true;
+            _toolManager.ChangeLockedState(true);
             Animations.OpenBoxWithKnife(_toolManager.CurrentTool.transform, _startPoint, _endPoint).OnComplete(() =>
             {
                 _toolManager?.RequestChangePlacement(_toolManager.CurrentToolPlacement);
                 _tape.SetActive(false);
                 State = BoxState.Opened;
                 PerformOpenFlaps();
+                _toolManager?.ChangeLockedState(false);
             });
         }
 
