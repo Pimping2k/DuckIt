@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e1e5343ae4846249d64ec2fc42ae2c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _initialToolPlacement: {fileID: 0}
 --- !u!114 &2927242052856880539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,3 +61,4 @@ MonoBehaviour:
   _toolMapData:
   - {fileID: 11400000, guid: 28a30621a5eaa7845ae8b9c2882e2a74, type: 2}
   - {fileID: 11400000, guid: af912b4f5cafad647b2bdb4b7a1e0d1c, type: 2}
+  - {fileID: 11400000, guid: ddda704328010ef45800eef95a2e5726, type: 2}

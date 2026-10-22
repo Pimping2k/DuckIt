@@ -8,7 +8,6 @@ namespace Gameplay.Tools.ToolPlacement
 {
     public class InspectionPlacement : ToolPlacementBase
     {
-        [SerializeField] private Transform _idlePlace;
         [SerializeField] private float _smoothSpeed = 15f;
         [SerializeField] private float _rotationSpeed = 10f;
         
@@ -76,7 +75,10 @@ namespace Gameplay.Tools.ToolPlacement
     
             if (_inspectionManager.IsRotating)
                 return;
-    
+            
+            if(_currentTool.IsLocked)
+                return;
+            
             Vector3 mouseScreenPos = Input.mousePosition;
             mouseScreenPos.z = _cameraService.MainCamera.WorldToScreenPoint(AttachPoint.position).z;
             Vector3 targetWorldPos = _cameraService.MainCamera.ScreenToWorldPoint(mouseScreenPos);
@@ -119,14 +121,15 @@ namespace Gameplay.Tools.ToolPlacement
         
         private void OnInspectionStarted()
         {
-            if (_currentTool == null || _idlePlace == null) return;
-            
-            _lastPosition = _currentTool.transform.position;
-            
-            _isInspecting = true;
-            _isReady = false;
-            
-            Animations.SnapTool(_currentTool.transform, _idlePlace, 0.1f);
+            // if (!_currentTool) 
+            //     return;
+            //
+            // _lastPosition = _currentTool.transform.position;
+            //
+            // _isInspecting = true;
+            // _isReady = false;
+            //
+            // Animations.SnapTool(_currentTool.transform, _idlePlace, 0.1f);
         }
 
         private void OnInspectionFinished()

@@ -9,6 +9,7 @@ Shader "Hidden/Restoration/Stamp"
         _MainTex ("Mask being painted", 2D) = "black" {}
         _GateTex ("Wear mask for gating", 2D) = "black" {}
         _WetTex ("Wetness (paint mask, channel B)", 2D) = "black" {}
+        _PosMap ("Model-space position per texel (w = valid)", 2D) = "black" {}
     }
     SubShader
     {
@@ -25,8 +26,11 @@ Shader "Hidden/Restoration/Stamp"
             float4 _MainTex_TexelSize;
             sampler2D _GateTex;
             sampler2D _WetTex;
+            sampler2D _PosMap;  // xyz = позиция тексела на модели, w = 1 если позиция известна
             float2 _BrushUV;
-            float _Radius;      // в единицах UV
+            float4 _BrushPos;   // центр кисти в том же пространстве, что и _PosMap
+            float _PosBrush;    // 1 = круг на поверхности модели (по _PosMap), 0 = круг в UV
+            float _Radius;      // _PosBrush=1: доля наибольшего размера предмета; иначе единицы UV
             float _Hardness;    // 0..0.99, доля радиуса с полной силой
             float _Strength;    // сила за этот мазок (уже умножена на dt)
             float _GateByWear;  // 1 = не наносить краску и лак там, где виден износ
@@ -36,11 +40,21 @@ Shader "Hidden/Restoration/Stamp"
             float4 _Add;        // какие каналы увеличиваем (для маски покрытия: краска, лак, влажность)
             float4 _Sub;        // насколько берём каждый канал
 
-            fixed4 frag(v2f_img i) : SV_Target
+            float4 frag(v2f_img i) : SV_Target
             {
                 float4 prev = tex2D(_MainTex, i.uv);
 
-                float d = distance(i.uv, _BrushUV) / max(_Radius, 1e-5);
+                float d;
+                if (_PosBrush > 0.5)
+                {
+                    // Расстояние на модели: мазок круглый при любой развёртке, швы не мешают.
+                    float4 p = tex2Dlod(_PosMap, float4(i.uv, 0, 0));
+                    d = p.w > 0.5 ? distance(p.xyz, _BrushPos.xyz) / max(_Radius, 1e-5) : 1e4;
+                }
+                else
+                {
+                    d = distance(i.uv, _BrushUV) / max(_Radius, 1e-5);
+                }
                 float a = 1.0 - smoothstep(_Hardness, 1.0, d);
                 a *= _Strength;
 

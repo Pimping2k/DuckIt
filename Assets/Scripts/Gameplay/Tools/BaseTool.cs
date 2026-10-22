@@ -24,7 +24,7 @@ namespace Gameplay.Tools
     {
         [SerializeField] private ToolData _toolData;
         [SerializeField] private ToolType _type;
-        [SerializeField] private RestoreTool _restoreToolType;
+        [SerializeField] protected RestoreTool _restoreToolType;
         
         protected PlayerToolController PlayerToolController;
         protected IInputService InputService;
@@ -33,6 +33,7 @@ namespace Gameplay.Tools
         
         public ToolData ToolData => _toolData;
         public ToolType Type => _type;
+        public bool IsLocked { get; protected set; }
         
         protected virtual void Awake()
         {

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf9346edde074584af922b48d6ca1316, type: 3}
-  m_Name: TD_Brush
+  m_Name: TD_PaintBrush
   m_EditorClassIdentifier: 
-  _id: 1
-  _toolName: Brush
-  _prefab: {fileID: 4770569419648313252, guid: 8d819325f47fa7140930340905c623d8, type: 3}
+  _id: 3
+  _toolName: Paint Brush
+  _prefab: {fileID: 5769238937520448972, guid: afafbbd78273df34d8028be82f163747, type: 3}

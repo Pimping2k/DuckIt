@@ -244,7 +244,7 @@ Shader "Restoration/ToonRestorable"
                 P.shadowAmount = lerp(_ShadowAmount, _SoftShadowStrength, _SoftVisualStyle);
                 P.shadowStep = lerp(_ShadowStep, _SoftLightStep, _SoftVisualStyle);
                 P.shadowSoft = lerp(_ShadowSoft, _SoftLightSoftness, _SoftVisualStyle);
-                P.shadingBlend = lerp(_ShadingBlend, 1.0h, _SoftVisualStyle);
+                P.shadingBlend = lerp(_ShadingBlend, 0.35h, _SoftVisualStyle);
                 P.lightMix = _LightContribution;
                 P.skyAmbient = _SkyAmbient * (1.0h - _SoftVisualStyle);
                 P.lampBoost = _LampBoost;

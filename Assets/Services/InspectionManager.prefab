@@ -160,14 +160,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AttachPoint: {fileID: 1975888519768247588}
-  _idlePlace: {fileID: 9213088303802373913}
   _smoothSpeed: 15
   _rotationSpeed: 5
-  _leftSideRotation: {x: 0, y: -55, z: 0}
-  _centerSideRotation: {x: 0, y: -90, z: 0}
-  _rightSideRotation: {x: 0, y: -135, z: 0}
-  _topSidePitch: -30
-  _bottomSidePitch: 30
+  _leftSideRotation: {x: 0, y: 75, z: 0}
+  _centerSideRotation: {x: 0, y: 90, z: 0}
+  _rightSideRotation: {x: 0, y: 90, z: 0}
+  _topSidePitch: 30
+  _bottomSidePitch: -30
 --- !u!1 &6310746714159471074
 GameObject:
   m_ObjectHideFlags: 0

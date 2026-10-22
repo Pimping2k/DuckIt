@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Vase
-  m_Shader: {fileID: 4800000, guid: 362bc5d0c7eb7fc4fb9352e3b0ca8768, type: 3}
-  m_Parent: {fileID: 2100000, guid: 40db36b802ae7b740a4be00d5c19c143, type: 2}
+  m_Shader: {fileID: 4800000, guid: bdf354f2858f68045a3022d6893690d4, type: 3}
+  m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -30,6 +30,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _SoftVisualStyle: 1
+    - _SoftHighlight: 0.22
+    - _SoftShadowStrength: 0.6
+    - _SoftLightSoftness: 0.28
+    - _SoftLightStep: 0.36
+    - _SoftRim: 0.015
+    - _FilmOpacity: 0.88
+    - _FilmDesaturation: 0.75
+    - _DustOpacity: 0.8
+    - _DustPixels: 0
+    - _TexturedCoating: 0
     - _BareGloss: 0.26
     - _DetailStrength: 0.25
     - _DirtAmount: 1
@@ -43,6 +54,9 @@ Material:
     - _ShadowStep: 0.5
     - _SkyAmbient: 0.6
     m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SoftShadowTint: {r: 0.67, g: 0.64, b: 0.69, a: 1}
+    - _DustFilmColor: {r: 0.27, g: 0.25, b: 0.21, a: 1}
     - _BrushDark: {r: 0.78999996, g: 0.82, b: 0.88, a: 1}
     - _DirtColor: {r: 0.47999996, g: 0.32999998, b: 0.26999995, a: 1}
     - _GrimeColor: {r: 0.22999996, g: 0.20999995, b: 0.17999998, a: 1}
