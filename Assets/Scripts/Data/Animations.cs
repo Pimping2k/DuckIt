@@ -126,5 +126,49 @@ namespace Data
                     ).SetEase(Ease.OutSine)
                 );
         }
+        
+        public static class HandsAnimations
+        {
+            public static Sequence GrabBoxWithHands(Transform leftHand, Transform rightHand,
+                Transform leftGrab, Transform rightGrab, float duration = 0.35f)
+            {
+                return DOTween.Sequence().SetLink(leftHand.gameObject)
+                    .Append(leftHand.DOMove(leftGrab.position, duration).SetEase(Ease.OutCubic))
+                    .Join(leftHand.DORotateQuaternion(leftGrab.rotation, duration).SetEase(Ease.OutCubic))
+                    .Join(rightHand.DOMove(rightGrab.position, duration).SetEase(Ease.OutCubic))
+                    .Join(rightHand.DORotateQuaternion(rightGrab.rotation, duration).SetEase(Ease.OutCubic))
+                    .AppendCallback(() =>
+                    {
+                        leftHand.SetParent(leftGrab, true);
+                        rightHand.SetParent(rightGrab, true);
+                    });
+            }
+
+            public static Sequence MoveBoxToPlace(Transform box, Transform target, float duration = 0.8f)
+            {
+                return DOTween.Sequence().SetTarget(box).SetLink(box.gameObject)
+                    .Append(box.DOJump(target.position, 0.25f, 1, duration).SetEase(Ease.InOutSine))
+                    .Join(box.DORotateQuaternion(target.rotation, duration).SetEase(Ease.InOutSine));
+            }
+            
+            public static Sequence GetTool(Transform hand, Transform tool, Transform toolSocket,
+                Vector3 lowerOffset,Vector3 homePosition,float lowerDuration = 0.25f, float returnDuration = 0.3f)
+            {
+                var lowPos = homePosition + lowerOffset;
+
+                return DOTween.Sequence().SetTarget(hand).SetLink(hand.gameObject)
+                    .Append(hand.DOLocalMove(lowPos, lowerDuration).SetEase(Ease.InQuad))
+
+                    .AppendCallback(() =>
+                    {
+                        tool.DOKill();
+                        tool.SetParent(toolSocket, true);
+                        tool.DOLocalMove(Vector3.zero, 0.12f).SetEase(Ease.OutCubic).SetLink(tool.gameObject);
+                        tool.DOLocalRotateQuaternion(Quaternion.identity, 0.12f).SetEase(Ease.OutCubic).SetLink(tool.gameObject);
+                    })
+
+                    .Append(hand.DOLocalMove(homePosition, returnDuration).SetEase(Ease.OutCubic));
+            }
+        }
     }
 }

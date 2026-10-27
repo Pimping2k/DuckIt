@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Data;
 using DG.Tweening;
 using EventSub;
 using EventSub.Implementation;
 using Extensions;
-using ExternPropertyAttributes;
 using Gameplay.Interaction;
 using Gameplay.Tools;
 using MyPackage.Runtime.ServiceLocator_Core;
-using Player;
 using Restorable;
 using UnityEngine;
 using View;
@@ -42,7 +38,6 @@ namespace Gameplay.Cardboard
         [SerializeField] private Transform _startPoint;
         [SerializeField] private Transform _endPoint;
         [SerializeField] private FlapPose[] _flaps;
-        [HorizontalLine] 
         [SerializeField] private Transform _itemPosition;
         
         private PlacementManager _placementManager;
@@ -127,7 +122,7 @@ namespace Gameplay.Cardboard
             if (!_toolManager.CurrentTool)
                 return;
 
-            if (_toolManager.CurrentTool.Type != ToolType.Knife)
+            if (_toolManager.CurrentTool.ToolData.ToolType != ToolType.Knife)
                 return;
 
             _isBusy = true;

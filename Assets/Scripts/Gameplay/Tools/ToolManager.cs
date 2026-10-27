@@ -11,6 +11,7 @@ namespace Gameplay.Tools
         [SerializeField] private ToolPlacementBase _initialToolPlacement;
         
         private IToolPlacement _lastPlacement;
+        private PlayerHandsController _handsController;
         
         public bool IsLocked { get; private set; }
         public BaseTool CurrentTool { get; private set; }

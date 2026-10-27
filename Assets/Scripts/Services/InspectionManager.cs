@@ -31,8 +31,6 @@ namespace Services
         private bool _isExiting;
         private bool _isRotating;
         private bool _isReady;
-        private bool _rotationLocked;
-        private bool _movementLocked;
         
         private Transform _initialItemParent;
         private InspectionInteractable _currentInspectionItem;
@@ -55,12 +53,6 @@ namespace Services
             
             _inputService.Cleaning.Back.performed += OnBackPerformed;
             _inputService.Cleaning.Rotating.performed += OnRotatingPerformed;
-            
-            _inputService.Cleaning.LockMovement.performed += OnLockMovementPerformed;
-            _inputService.Cleaning.LockMovement.canceled += OnLockMovementCanceled;
-            
-            _inputService.Cleaning.LockRotate.performed += OnLockRotatePerformed;
-            _inputService.Cleaning.LockRotate.canceled += OnLockRotateCanceled;
         }
 
         private void OnDestroy()
@@ -70,12 +62,6 @@ namespace Services
             
             _inputService.Cleaning.Back.performed -= OnBackPerformed;
             _inputService.Cleaning.Rotating.performed -= OnRotatingPerformed;
-            
-            _inputService.Cleaning.LockMovement.performed -= OnLockMovementPerformed;
-            _inputService.Cleaning.LockMovement.canceled -= OnLockMovementCanceled;
-            
-            _inputService.Cleaning.LockRotate.performed -= OnLockRotatePerformed;
-            _inputService.Cleaning.LockRotate.canceled -= OnLockRotateCanceled;
         }
 
         private void Update()
@@ -165,25 +151,10 @@ namespace Services
                     float deltaX = mouseDelta.x;
                     float deltaY = mouseDelta.y;
 
-                    if (_rotationLocked)
-                    {
-                        Quaternion rotX = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, Vector3.up);
-                        _targetRotation = rotX * _targetRotation;
-                    }
-                    else if (_movementLocked)
-                    {
-                        Quaternion rotRoll = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, camTransform.forward);
-                        Quaternion rotPitch = Quaternion.AngleAxis(deltaY * _rotationSensitivity, camTransform.right);
+                    Quaternion rotX = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, Vector3.up);
+                    Quaternion rotY = Quaternion.AngleAxis(deltaY * _rotationSensitivity, camTransform.right);
 
-                        _targetRotation = rotRoll * rotPitch * _targetRotation;
-                    }
-                    else
-                    {
-                        Quaternion rotX = Quaternion.AngleAxis(-deltaX * _rotationSensitivity, Vector3.up);
-                        Quaternion rotY = Quaternion.AngleAxis(deltaY * _rotationSensitivity, camTransform.right);
-
-                        _targetRotation = rotX * rotY * _targetRotation;
-                    }
+                    _targetRotation = rotX * rotY * _targetRotation;
                 }
             }
         }
@@ -210,26 +181,6 @@ namespace Services
                 return;
             
             FinishInspection(_currentInspectionItem);
-        }
-        
-        private void OnLockRotatePerformed(InputAction.CallbackContext obj)
-        {
-            _rotationLocked = true;
-        }
-
-        private void OnLockRotateCanceled(InputAction.CallbackContext obj)
-        {
-            _rotationLocked = false;
-        }
-
-        private void OnLockMovementPerformed(InputAction.CallbackContext obj)
-        {
-            _movementLocked = true;
-        }
-
-        private void OnLockMovementCanceled(InputAction.CallbackContext obj)
-        {
-            _movementLocked = false;
         }
 
 #if UNITY_EDITOR

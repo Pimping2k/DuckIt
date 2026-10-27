@@ -45,7 +45,7 @@ public class StylizedSurfaceEditor : BaseShaderGUI {
         }
 
         var guiContent = new GUIContent(cleanName, tooltip);
-        if ((ShaderPropertyType)property.type == ShaderPropertyType.Texture) {
+        if ((ShaderPropertyType)property.propertyType == ShaderPropertyType.Texture) {
             if (!property.name.Contains("_BaseMap")) {
                 EditorGUILayout.Space(10);
             }
@@ -323,7 +323,7 @@ public class StylizedSurfaceEditor : BaseShaderGUI {
             }
 
             if (!skipProperty &&
-                (ShaderPropertyType)property.type == ShaderPropertyType.Color &&
+                (ShaderPropertyType)property.propertyType == ShaderPropertyType.Color &&
                 property.colorValue == HashColor) {
                 property.colorValue = _target.GetColor(ColorPropertyName);
             }
@@ -344,7 +344,7 @@ public class StylizedSurfaceEditor : BaseShaderGUI {
                 EditorGUI.indentLevel += 1;
             }
 
-            bool hideInInspector = ((ShaderPropertyFlags)property.flags & ShaderPropertyFlags.HideInInspector) != 0;
+            bool hideInInspector = ((ShaderPropertyFlags)property.propertyFlags & ShaderPropertyFlags.HideInInspector) != 0;
             if (!hideInInspector && !skipProperty) {
                 EditorGUI.BeginChangeCheck();
                 DrawStandard(property);

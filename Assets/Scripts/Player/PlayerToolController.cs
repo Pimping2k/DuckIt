@@ -10,7 +10,7 @@ namespace Player
     public class PlayerToolController : PlayerComponent
     {
         [SerializeField] private HandPlacement _handPlacement;
-
+        
         private ToolManager _toolManager;
         private InspectionManager _inspectionManager;
 

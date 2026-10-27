@@ -63,6 +63,7 @@ namespace Gameplay.Interaction
             }
 
             if (_lastInteractable != currentInteractable)
+                
             {
                 _lastInteractable?.Highlight(false);
                 _lastInteractable = currentInteractable;

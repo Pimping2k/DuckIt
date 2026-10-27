@@ -5,6 +5,7 @@ namespace Gameplay.Tools
 {
     public enum RestoreTool
     {
+        None,
         Clean,    // сухая кисть: пыль
         Wash,     // губка: пыль, грязь
         Scrape,   // скребок: старая краска

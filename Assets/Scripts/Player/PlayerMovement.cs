@@ -15,7 +15,17 @@ namespace Player
         [SerializeField] private float _movementSpeed = 5f;
         [SerializeField] private float _rotationSpeed = 5f;
         
+        [SerializeField] private Transform _handsRoot;
+        [SerializeField, Range(0f, 15f)] private float _maxHandsLag = 6f;
+        [SerializeField, Min(0.1f)] private float _handsReturnSpeed = 14f;
+
         private IInputService _inputService;
+
+        private Quaternion _handsInitialRotation;
+        private Vector2 _previousCameraAngles;
+        private Vector2 _handsRotationOffset;
+        private float _handsYawOffset;
+        private bool _handsInitialized;
         
         private Vector2 _movementVector;
         private Vector2 _rotationVector;
@@ -36,6 +46,53 @@ namespace Player
         {
             MovePlayer();
             RotatePlayer();
+        }
+        
+        private void LateUpdate()
+        {
+            if (!_handsRoot || !_cameraTransform)
+                return;
+
+            Vector2 cameraAngles = new Vector2(
+                _cameraTransform.eulerAngles.x,
+                _cameraTransform.eulerAngles.y);
+
+            if (!_handsInitialized)
+            {
+                _handsInitialRotation = _handsRoot.localRotation;
+                _previousCameraAngles = cameraAngles;
+                _handsInitialized = true;
+            }
+
+            if (Time.deltaTime <= 0f)
+                return;
+
+            Vector2 rotationDelta = new Vector2(
+                Mathf.DeltaAngle(_previousCameraAngles.x, cameraAngles.x),
+                Mathf.DeltaAngle(_previousCameraAngles.y, cameraAngles.y));
+
+            _previousCameraAngles = cameraAngles;
+
+            _handsRotationOffset -= rotationDelta;
+
+            _handsRotationOffset.x = Mathf.Clamp(
+                _handsRotationOffset.x, -_maxHandsLag, _maxHandsLag);
+
+            _handsRotationOffset.y = Mathf.Clamp(
+                _handsRotationOffset.y, -_maxHandsLag, _maxHandsLag);
+
+            float blend = 1f - Mathf.Exp(
+                -_handsReturnSpeed * Time.deltaTime);
+
+            _handsRotationOffset = Vector2.Lerp(
+                _handsRotationOffset, Vector2.zero, blend);
+
+            _handsRoot.localRotation =
+                Quaternion.Euler(
+                    _handsRotationOffset.x,
+                    _handsRotationOffset.y,
+                    0f) *
+                _handsInitialRotation;
         }
 
         private void ToggleSubscriptions(bool state)

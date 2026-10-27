@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
 using Services;
@@ -14,7 +15,6 @@ namespace Gameplay.Tools
         
         private ToolManager _toolManager;
         private IInputService _inputService;
-        private PlayerToolController _playerToolController;
         
         private BaseTool _currentTool;
         private int _currentToolIndex;
@@ -31,12 +31,18 @@ namespace Gameplay.Tools
 
         private void Start()
         {
-            _playerToolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
+            SetInitialTool();
         }
 
         private void OnDestroy()
         {
             ToggleSubscriptions(false);
+        }
+
+        private void SetInitialTool()
+        {
+            var initialTool = Array.IndexOf(_toolMapData,_toolMapData.FirstOrDefault(x => x.ToolType == ToolType.Empty));
+            CreateTool(initialTool);
         }
         
         private void ToggleSubscriptions(bool state)
@@ -78,7 +84,8 @@ namespace Gameplay.Tools
             }
 
             ToolData toolData = _toolMapData[_currentToolIndex];
-            _currentTool = Instantiate(toolData.Prefab);
+            if(toolData.Prefab)
+                _currentTool = Instantiate(toolData.Prefab);
 
             _toolManager.ChangeTool(_currentTool);
         }

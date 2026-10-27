@@ -58,11 +58,11 @@ MonoBehaviour:
   _toolVisual: {fileID: 2328228060518634303}
   _tip: {fileID: 2328228060518634303}
   _radiusStep: 0.1
-  _radiusBase: 0.2
+  _radiusBase: 0.05
   _maxRadius: 0
   _minRadius: 0
-  _strength: 2.5
-  _hardness: 0.6
+  _strength: 2
+  _hardness: 0.728
 --- !u!1 &7494977672954966537
 GameObject:
   m_ObjectHideFlags: 0

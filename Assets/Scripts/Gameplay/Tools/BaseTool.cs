@@ -18,12 +18,12 @@ namespace Gameplay.Tools
         Sandpaper = 5,
         Glue = 6,
         Screwdriver = 7,
+        Empty = 8,
     }
     
     public abstract class BaseTool : MonoBehaviour
     {
-        [SerializeField] private ToolData _toolData;
-        [SerializeField] private ToolType _type;
+        [SerializeField] protected ToolData _toolData;
         [SerializeField] protected RestoreTool _restoreToolType;
         
         protected PlayerToolController PlayerToolController;
@@ -32,7 +32,6 @@ namespace Gameplay.Tools
         private Collider[] _colliders;
         
         public ToolData ToolData => _toolData;
-        public ToolType Type => _type;
         public bool IsLocked { get; protected set; }
         
         protected virtual void Awake()

@@ -35,8 +35,8 @@ namespace Gameplay.Tools.ToolPlacement
             _inspectionManager = ServiceLocator.Resolve<InspectionManager>();
             _cameraService = ServiceLocator.Resolve<CameraService>();
             
-            _inspectionManager.RotationStarted += OnInspectionStarted;
-            _inspectionManager.RotationFinished += OnInspectionFinished;
+            //_inspectionManager.RotationStarted += OnInspectionStarted;
+            //_inspectionManager.RotationFinished += OnInspectionFinished;
         }
 
         private void OnDestroy()

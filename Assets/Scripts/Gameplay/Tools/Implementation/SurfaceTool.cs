@@ -1,5 +1,4 @@
-﻿using ExternPropertyAttributes;
-using MyPackage.Runtime.ServiceLocator_Core;
+﻿using MyPackage.Runtime.ServiceLocator_Core;
 using Restorable;
 using Services;
 using UnityEngine;
@@ -17,7 +16,7 @@ namespace Gameplay.Tools.Implementation
         [SerializeField] private float _snapSpeed = 20f;
         [SerializeField] private Transform _toolVisual;
         [SerializeField] private Transform _tip;
-        [HorizontalLine]
+
         [SerializeField] private float _radiusStep = 0.1f;
         [SerializeField] private float _radiusBase = 0.2f;
         [SerializeField] private float _maxRadius;
