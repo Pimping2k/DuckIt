@@ -1,4 +1,5 @@
 ﻿using MyPackage.Runtime.ServiceLocator_Core;
+using Player;
 using Restorable;
 using Services;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace Gameplay.Tools.Implementation
         protected SurfaceEffect Effect;
         private readonly RaycastHit[] _hits = new RaycastHit[8];
         
+        private PlayerHandsController _hands;
         private CameraService _cameraService;
         private float _radius;
 
@@ -55,6 +57,13 @@ namespace Gameplay.Tools.Implementation
             
             Effect = SurfaceEffect.Of(_restoreToolType);
         }
+
+        protected override void Start()
+        {
+            _hands = LocalPlayer.Instance.GetPlayerComponent<PlayerHandsController>();
+            base.Start();
+        }
+
 
         private void OnDestroy()
         {
@@ -93,8 +102,12 @@ namespace Gameplay.Tools.Implementation
             }
         }
 
+
         private void LateUpdate()
         {
+            if (!_hands)
+                return;
+
             float t = 1f - Mathf.Exp(-_snapSpeed * Time.deltaTime);
 
             if (_found && _currentHit.collider != null)
@@ -105,11 +118,15 @@ namespace Gameplay.Tools.Implementation
                 Vector3 tipOffset = rot * Vector3.Scale(_tipLocalPos, _toolVisual.lossyScale);
                 Vector3 pos = _currentHit.point + n * _hoverOffset - tipOffset;
 
-                _toolVisual.SetPositionAndRotation(
-                    Vector3.Lerp(_toolVisual.position, pos, t),
-                    Quaternion.Slerp(_toolVisual.rotation, rot, t));
+                Vector3 newPos = Vector3.Lerp(_toolVisual.position, pos, t);
+                Quaternion newRot = Quaternion.Slerp(_toolVisual.rotation, rot, t);
+
+                if (_hands != null)
+                    _hands.MoveHandSoThat(_toolVisual, newPos, newRot);
+                else
+                    _toolVisual.SetPositionAndRotation(newPos, newRot);
             }
-            else
+            else if (_hands == null)
             {
                 _toolVisual.localPosition = Vector3.Lerp(_toolVisual.localPosition, _restLocalPos, t);
                 _toolVisual.localRotation = Quaternion.Slerp(_toolVisual.localRotation, _restLocalRot, t);

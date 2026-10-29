@@ -1,6 +1,8 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using Gameplay.Cardboard;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Data
 {
@@ -127,8 +129,74 @@ namespace Data
                 );
         }
         
+        public static class RestorableItems
+        {
+            public static Sequence PopItemFromBox(
+                Transform item,
+                Transform startPoint,
+                Transform target,
+                float popHeight = 0.5f,
+                float popDuration = 0.35f,
+                float flightDuration = 0.55f,
+                float arcHeight = 0.35f,
+                Action onLanded = null)
+            {
+                var baseScale = item.localScale;
+
+                item.SetParent(null);
+                item.SetPositionAndRotation(startPoint.position, startPoint.rotation);
+                item.localScale = Vector3.zero;
+
+                var popPos = startPoint.position + Vector3.up * popHeight;
+                float tilt = Random.Range(8f, 15f) * (Random.value > 0.5f ? 1f : -1f);
+
+                return DOTween.Sequence().SetTarget(item).SetLink(item.gameObject)
+                    .Append(item.DOScale(baseScale, popDuration).SetEase(Ease.OutBack, 2.5f))
+                    .Join(item.DOMove(popPos, popDuration).SetEase(Ease.OutCubic))
+                    .Join(item.DOPunchRotation(new Vector3(0f, 0f, tilt), popDuration, 6, 0.6f))
+
+                    .AppendInterval(0.06f)
+                    
+                    .Append(item.DOJump(target.position, arcHeight, 1, flightDuration).SetEase(Ease.InOutSine))
+                    .Join(item.DORotateQuaternion(target.rotation, flightDuration).SetEase(Ease.InOutSine))
+
+                    .Append(item.DOScale(Vector3.Scale(baseScale, new Vector3(1.12f, 0.88f, 1.12f)), 0.07f).SetEase(Ease.OutQuad))
+                    .Append(item.DOScale(baseScale, 0.2f).SetEase(Ease.OutBack, 2f))
+                    .AppendCallback(() => onLanded?.Invoke());
+            }
+        }
+        
         public static class HandsAnimations
         {
+            public static Sequence ReachAndReturn(
+                Transform hand,
+                Vector3 homeLocalPos,
+                Quaternion homeLocalRot,
+                Vector3 targetWorldPos,
+                Quaternion? targetWorldRot = null,
+                float reachDuration = 0.25f,
+                float holdDuration = 0.05f,
+                float returnDuration = 0.3f,
+                Action onReached = null)
+            {
+                var seq = DOTween.Sequence().SetTarget(hand).SetLink(hand.gameObject);
+
+                seq.Append(hand.DOMove(targetWorldPos, reachDuration).SetEase(Ease.OutCubic));
+                if (targetWorldRot.HasValue)
+                    seq.Join(hand.DORotateQuaternion(targetWorldRot.Value, reachDuration).SetEase(Ease.OutCubic));
+
+                if (onReached != null)
+                    seq.AppendCallback(() => onReached());
+
+                if (holdDuration > 0f)
+                    seq.AppendInterval(holdDuration);
+
+                seq.Append(hand.DOLocalMove(homeLocalPos, returnDuration).SetEase(Ease.InOutSine));
+                seq.Join(hand.DOLocalRotateQuaternion(homeLocalRot, returnDuration).SetEase(Ease.InOutSine));
+
+                return seq;
+            }
+            
             public static Sequence GrabBoxWithHands(Transform leftHand, Transform rightHand,
                 Transform leftGrab, Transform rightGrab, float duration = 0.35f)
             {

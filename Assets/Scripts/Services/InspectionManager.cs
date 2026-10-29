@@ -2,13 +2,11 @@
 using Cysharp.Threading.Tasks;
 using Data;
 using DG.Tweening;
-using Gameplay.Interaction;
 using Gameplay.Tools;
 using Gameplay.Tools.ToolPlacement;
 using MyPackage.Runtime.ServiceLocator_Core;
 using Restorable;
 using Unity.Cinemachine;
-using Unity.VisualScripting.InputSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -184,6 +182,13 @@ namespace Services
         }
 
 #if UNITY_EDITOR
+        [ContextMenu("Check Inspection")]
+        private void DebugCheckInspection()
+        {
+            var debug = FindFirstObjectByType<InspectionInteractable>();
+            StartInspection(debug);
+        }
+        
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.green;

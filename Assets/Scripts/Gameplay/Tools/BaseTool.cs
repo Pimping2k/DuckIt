@@ -40,7 +40,7 @@ namespace Gameplay.Tools
             _colliders = GetComponentsInChildren<Collider>();
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             PlayerToolController = LocalPlayer.Instance.GetPlayerComponent<PlayerToolController>();
         }

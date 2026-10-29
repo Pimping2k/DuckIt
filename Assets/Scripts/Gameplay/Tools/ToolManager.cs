@@ -10,6 +10,8 @@ namespace Gameplay.Tools
     {
         [SerializeField] private ToolPlacementBase _initialToolPlacement;
         
+        [SerializeField] private ToolPlacementBase _debugPlacement;
+        
         private IToolPlacement _lastPlacement;
         private PlayerHandsController _handsController;
         
@@ -63,5 +65,13 @@ namespace Gameplay.Tools
         {
             IsLocked = state;
         }
+
+#if UNITY_EDITOR
+        [ContextMenu("Change Placement")]
+        private void ChangePlacementDebug()
+        {
+            RequestChangePlacement(_debugPlacement);
+        }
+#endif
     }
 }

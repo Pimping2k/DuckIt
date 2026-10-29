@@ -10,6 +10,7 @@ namespace Player
     public class PlayerHandsController : PlayerComponent
     {
         [SerializeField] private Transform _toolSocket;
+        [SerializeField] private Transform _envelopeSocket;
         
         [SerializeField] private Animator _leftHandAnimator;
         [SerializeField] private Animator _rightHandAnimator;
@@ -20,12 +21,18 @@ namespace Player
         
         private Transform _leftHomeParent, _rightHomeParent;
         private Quaternion _leftHomeRot, _rightHomeRot;
-        
+
         public Vector3 LeftHomePos { get; private set; }
         public Vector3 RightHomePos { get; private set; }
+        
+        public Quaternion LeftHomeRot { get; private set; }
+        public Quaternion RightHomeRot { get; private set; }
+        
         public Transform LeftHand => _leftHand;
         public Transform RightHand => _rightHand;
+        
         public Transform ToolSocket => _toolSocket;
+        public Transform EnvelopeSocket => _envelopeSocket;
         
         public override void Initialize()
         {
@@ -67,14 +74,45 @@ namespace Player
             _leftHandAnimator.SetFloat(AnimationCache.PlayerHands.GRIP_PARAMETER, 1);
         }
 
+        public void PlayAnimation(int animationHash, int layer = 0)
+        {
+            _rightHandAnimator.Play(animationHash, layer);
+        }
+        
         #region Utility
+        
+        public Sequence ReachWithHand(bool rightHand, Vector3 targetWorldPos,
+            Quaternion? targetWorldRot = null, Action onReached = null,
+            float reachDuration = 0.25f, float holdDuration = 0.05f, float returnDuration = 0.3f)
+        {
+            var hand = rightHand ? _rightHand : _leftHand;
+            var homePos = rightHand ? RightHomePos : LeftHomePos;
+            var homeRot = rightHand ? _rightHomeRot : _leftHomeRot;
+
+            hand.DOKill();
+
+            return Animations.HandsAnimations.ReachAndReturn(
+                hand, homePos, homeRot, targetWorldPos, targetWorldRot,
+                reachDuration, holdDuration, returnDuration, onReached);
+        }
+        
+        public void MoveToolTo(Vector3 pos, Quaternion rot) => MoveHandSoThat(ToolSocket, pos, rot);
+
+        public void MoveHandSoThat(Transform attached, Vector3 worldPos, Quaternion worldRot)
+        {
+            Quaternion inv = Quaternion.Inverse(_rightHand.rotation);
+            Quaternion rotOffset = inv * attached.rotation;
+            Vector3 posOffset = inv * (attached.position - _rightHand.position);
+
+            Quaternion handRot = worldRot * Quaternion.Inverse(rotOffset);
+            _rightHand.SetPositionAndRotation(worldPos - handRot * posOffset, handRot);
+        }
 
         public Sequence ReturnHands(float duration = 0.4f)
         {
             _leftHand.DOKill();
             _rightHand.DOKill();
 
-            // отцепляем от коробки, сохраняя мировую позицию, чтобы не было скачка
             _leftHand.SetParent(_leftHomeParent, true);
             _rightHand.SetParent(_rightHomeParent, true);
 
