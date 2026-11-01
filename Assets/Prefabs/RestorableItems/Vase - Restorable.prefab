@@ -86,9 +86,9 @@ MonoBehaviour:
   dustFilmColor: {r: 0.27, g: 0.25, b: 0.21, a: 1}
   filmOpacity: 1
   dustDesaturation: 1
-  dustOpacity: 1
+  dustOpacity: 0.97
   uniformDust: 1
-  maskSize: 1024
+  maskSize: 256
   maskUvSet: 1
   toonShader: {fileID: 4800000, guid: bdf354f2858f68045a3022d6893690d4, type: 3}
   stampShader: {fileID: 4800000, guid: 98e3351e6416e0c438dd7dddc6a5ca76, type: 3}

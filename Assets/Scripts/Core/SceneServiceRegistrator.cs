@@ -25,13 +25,13 @@ namespace Gameplay.Core
                 {
                     foreach (var iface in interfaces)
                     {
-                        ServiceLocator.Register(iface, service);
+                        ServiceLocator.RegisterService(iface, service);
                         _registeredTypes.Add(iface);
                     }
                 }
                 else
                 {
-                    ServiceLocator.Register(service.GetType(), service);
+                    ServiceLocator.RegisterService(service.GetType(), service);
                     _registeredTypes.Add(service.GetType());
                 }
             }

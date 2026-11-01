@@ -11,11 +11,11 @@ namespace UI.Note
     {
         [SerializeField] private TMP_Text _noteDescrition;
 
-        private BoxConfig _config;
+        private PackageConfig _config;
 
         protected override void OnRequested(params object[] payload)
         {
-            _config = payload[0] as BoxConfig;
+            _config = payload[0] as PackageConfig;
             _noteDescrition.text = _config.NoteText;
         }
 

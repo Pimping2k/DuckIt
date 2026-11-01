@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91b3d3ac31bd455b87c9c673cdab9ade, type: 3}
   m_Name: BoxConfig_00
   m_EditorClassIdentifier: 
+  _id: 1
   _noteText: Hello, my name is Andryushka, this duck is so precious for me please
     restorate it!!! Mr.Duck
   _itemPrefab: {fileID: 1626635262405797918, guid: f77ca2002bf8c6d4386b41eccbc4ff5c, type: 3}

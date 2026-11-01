@@ -37,7 +37,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: c710eec508e5dd04687d965e03c192f6, type: 3}
+        m_Texture: {fileID: 2800000, guid: b25fc51be37411943872e7dbca1d1804, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PaintMask:
@@ -50,7 +50,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BareGloss: 1
+    - _BareGloss: 0
     - _BrushScale: 9
     - _BrushStrength: 0.035
     - _ChipBreakup: 0.35
@@ -71,19 +71,19 @@ Material:
     - _GlintSoft: 0.1
     - _GrimeDesaturation: 0.638
     - _GrimeOpacity: 1
-    - _LampBoost: 1
-    - _LightContribution: 0.768
+    - _LampBoost: 0.4
+    - _LightContribution: 0.2
     - _MaskUVSet: 0
     - _OutlineWidth: 0
     - _PaintGloss: 0.15
     - _RimSize: 0.45
     - _RimSoft: 0.3
     - _RimStrength: 0
-    - _ShadingBlend: 0.25
+    - _ShadingBlend: 0.15
     - _ShadowAmount: 1
-    - _ShadowSoft: 0.5
-    - _ShadowStep: 0.488
-    - _SkyAmbient: 0
+    - _ShadowSoft: 0.35
+    - _ShadowStep: 0
+    - _SkyAmbient: 0.15
     - _StrokeStrength: 0.12
     - _StudyGraphic: 0
     - _TexturedCoating: 0
@@ -91,7 +91,7 @@ Material:
     - _WearRelief: 0.0002
     - _WoodGrain: 0
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.92, g: 0.94, b: 0.95, a: 1}
     - _BrushDark: {r: 0.79, g: 0.82, b: 0.88, a: 1}
     - _BrushLight: {r: 1.1, g: 1.05, b: 0.91, a: 1}
     - _DirtColor: {r: 0.48, g: 0.33, b: 0.27, a: 1}

@@ -1,0 +1,11 @@
+{
+  "name": "com.pimping2k.servicelocator",
+  "version": "1.0.0",
+  "displayName": "Service Locator Simple",
+  "description": "Service Locator implementation",
+  "unity": "2021.3",
+  "author": {
+    "name": "Pimping2k"
+  },
+  "_fingerprint": "0937afd3b6522f88f2e641316630e14e94298992"
+}

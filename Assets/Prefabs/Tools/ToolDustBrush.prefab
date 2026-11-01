@@ -46,8 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _toolData: {fileID: 11400000, guid: af912b4f5cafad647b2bdb4b7a1e0d1c, type: 2}
-  _type: 2
-  _restoreToolType: 0
+  _restoreToolType: 1
   _paintLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -56,13 +55,13 @@ MonoBehaviour:
   _hoverOffset: 0.01
   _snapSpeed: 20
   _toolVisual: {fileID: 2328228060518634303}
-  _tip: {fileID: 2328228060518634303}
+  _tip: {fileID: 1042158602879067235}
   _radiusStep: 0.1
-  _radiusBase: 0.05
+  _radiusBase: 0.06
   _maxRadius: 0
   _minRadius: 0
-  _strength: 2
-  _hardness: 0.728
+  _strength: 3.5
+  _hardness: 1
 --- !u!1 &7494977672954966537
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +199,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 206956fdeaa2ce941961bc203208fab3, type: 3}
+--- !u!4 &1042158602879067235 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2166752025787824034, guid: 206956fdeaa2ce941961bc203208fab3, type: 3}
+  m_PrefabInstance: {fileID: 1182094599687607233}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1271603445496457547 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 126664144030218890, guid: 206956fdeaa2ce941961bc203208fab3, type: 3}

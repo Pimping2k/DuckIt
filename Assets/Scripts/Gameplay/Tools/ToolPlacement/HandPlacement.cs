@@ -11,15 +11,18 @@ namespace Gameplay.Tools.ToolPlacement
         
         private BaseTool _currentTool;
         private Sequence _sequence;
-
+        private Sequence _handsReturnSequence;
+        
         public override void Attach(BaseTool tool)
         {
             if (tool == null)
                 return;
 
+            _handsReturnSequence?.Kill();
             _sequence?.Kill();
             _currentTool = tool;
 
+            _handsReturnSequence = _handsController.ReturnHands(0f);
             _sequence = Animations.HandsAnimations.GetTool(
                 _handsController.RightHand,
                 tool.transform,

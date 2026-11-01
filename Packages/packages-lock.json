@@ -15,11 +15,10 @@
       "hash": "ceac8d6946b1125fe782cd171fbcb245b567dbf9"
     },
     "com.pimping2k.servicelocator": {
-      "version": "https://github.com/Pimping2k/ServiceLocatorUnity.git",
+      "version": "file:com.pimping2k.servicelocator",
       "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "0937afd3b6522f88f2e641316630e14e94298992"
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",

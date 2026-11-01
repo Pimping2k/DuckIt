@@ -33,7 +33,7 @@ namespace Gameplay.Cardboard
 
     public class BoxInteractable : Interactable
     {
-        [SerializeField] private BoxConfig _config;
+        [SerializeField] private PackageConfig _config;
         [SerializeField] private GameObject _tape;
         [SerializeField] private Transform _startPoint;
         [SerializeField] private Transform _endPoint;
@@ -57,7 +57,7 @@ namespace Gameplay.Cardboard
             }
         }
         
-        public BoxConfig Config { get; private set; }
+        public PackageConfig Config { get; private set; }
 
         public event Action<BoxInteractable, BoxState> OnStateChange;
 
@@ -69,7 +69,7 @@ namespace Gameplay.Cardboard
             Setup(_config);
         }
 
-        public void Setup(BoxConfig config)
+        public void Setup(PackageConfig config)
         {
             Config = config;
             var instance = Instantiate(Config.ItemPrefab, _itemPosition.position, _itemPosition.localRotation, transform);

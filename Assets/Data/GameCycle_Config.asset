@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4841e9dc68e4029a8067ec1104e7630, type: 3}
   m_Name: GameCycle_Config
   m_EditorClassIdentifier: 
-  _dayDuration: 600
-  _hourDuration: 0
+  _hourDurationRealMinutes: 0.01
   _monthDaysDuration: 28
   _initialSeason: 0
   _timeRange: {x: 6, y: 22}

@@ -46,8 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _toolData: {fileID: 11400000, guid: ddda704328010ef45800eef95a2e5726, type: 2}
-  _type: 2
-  _restoreToolType: 5
+  _restoreToolType: 6
   _paintLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -56,7 +55,7 @@ MonoBehaviour:
   _hoverOffset: 0.01
   _snapSpeed: 20
   _toolVisual: {fileID: 2328228060518634303}
-  _tip: {fileID: 2328228060518634303}
+  _tip: {fileID: 900020001}
   _radiusStep: 0.1
   _radiusBase: 0.2
   _maxRadius: 0
@@ -203,5 +202,10 @@ PrefabInstance:
 --- !u!4 &506765875675950623 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8517810810323107725, guid: 5a5a268ffe94c4e4282f2e319566a4db, type: 3}
+  m_PrefabInstance: {fileID: 8159734366063169938}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &900020001 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3946352992688777407, guid: 5a5a268ffe94c4e4282f2e319566a4db, type: 3}
   m_PrefabInstance: {fileID: 8159734366063169938}
   m_PrefabAsset: {fileID: 0}

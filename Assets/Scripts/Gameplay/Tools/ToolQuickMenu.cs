@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using MyPackage.Runtime.ServiceLocator_Core;
-using Player;
 using Services;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,6 +13,7 @@ namespace Gameplay.Tools
         
         private ToolManager _toolManager;
         private IInputService _inputService;
+        private ToolsDatabase _toolsDatabase;
         
         private BaseTool _currentTool;
         private int _currentToolIndex;
@@ -23,10 +22,16 @@ namespace Gameplay.Tools
         
         private void Awake()
         {
+            _toolsDatabase = ServiceLocator.ResolveConfig<ToolsDatabase>();
             _inputService = ServiceLocator.Resolve<IInputService>();
             _toolManager = ServiceLocator.Resolve<ToolManager>();
             
             ToggleSubscriptions(true);
+
+            foreach (var (key,toolData) in _toolsDatabase.Data)
+            {
+                _toolMapData[key-1] = toolData;
+            }
         }
 
         private void Start()
@@ -38,7 +43,7 @@ namespace Gameplay.Tools
         {
             ToggleSubscriptions(false);
         }
-
+        
         private void SetInitialTool()
         {
             var initialTool = Array.IndexOf(_toolMapData,_toolMapData.FirstOrDefault(x => x.ToolType == ToolType.Empty));

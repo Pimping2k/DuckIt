@@ -74,9 +74,7 @@ namespace GameCycle
         private void CalculateTimings()
         {
             _currentHour = _config.TimeRange.x;
-            var totalDayDuration = _config.TimeRange.y - _config.TimeRange.x;
-            var minuteDuration = totalDayDuration / 60f;
-            _minuteTiming = minuteDuration;
+            _minuteTiming = _config.MinuteDurationRealSeconds;
             TimeData = new TimeData(_currentHour, _currentMinutes);
         }
     }

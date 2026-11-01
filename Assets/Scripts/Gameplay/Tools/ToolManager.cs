@@ -9,40 +9,35 @@ namespace Gameplay.Tools
     public class ToolManager : MonoBehaviour, IService
     {
         [SerializeField] private ToolPlacementBase _initialToolPlacement;
-        
         [SerializeField] private ToolPlacementBase _debugPlacement;
-        
+
+        private ToolsDatabase _toolsDatabase;
         private IToolPlacement _lastPlacement;
         private PlayerHandsController _handsController;
-        
+
         public bool IsLocked { get; private set; }
         public BaseTool CurrentTool { get; private set; }
         public IToolPlacement CurrentToolPlacement { get; private set; }
         
-        public event Action<BaseTool, BaseTool> ToolChanged;
+        public event Action<BaseTool> ToolChanged;
 
         private void Awake()
         {
             RequestChangePlacement(_initialToolPlacement);
         }
-
+        
         public void ChangeTool(BaseTool tool)
         {
             if(IsLocked)
                 return;
-            
-            if (CurrentTool == tool)
-                return;
-
-            var oldTool = CurrentTool;
 
             CurrentToolPlacement?.Detach();
-            CurrentTool = tool;
+            CurrentTool = tool ? tool : null;
 
             if (CurrentTool)
                 CurrentToolPlacement?.Attach(CurrentTool);
 
-            ToolChanged?.Invoke(oldTool, CurrentTool);
+            ToolChanged?.Invoke(CurrentTool);
         }
 
         public void RequestChangePlacement<T>(T toolPlacement) where T : IToolPlacement
@@ -50,7 +45,9 @@ namespace Gameplay.Tools
             _lastPlacement = CurrentToolPlacement;
             CurrentToolPlacement?.Detach();
             CurrentToolPlacement = toolPlacement;
-            CurrentToolPlacement.Attach(CurrentTool);
+            
+            if (CurrentTool)
+                CurrentToolPlacement?.Attach(CurrentTool);
         }
 
         public void RestorePlacement()

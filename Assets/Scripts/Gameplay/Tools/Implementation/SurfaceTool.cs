@@ -1,5 +1,6 @@
 ﻿using MyPackage.Runtime.ServiceLocator_Core;
 using Player;
+using Gameplay.Tools.ToolPlacement;
 using Restorable;
 using Services;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace Gameplay.Tools.Implementation
         
         private PlayerHandsController _hands;
         private CameraService _cameraService;
+        private ToolManager _toolManager;
         private float _radius;
 
         private bool _found;
@@ -61,6 +63,7 @@ namespace Gameplay.Tools.Implementation
         protected override void Start()
         {
             _hands = LocalPlayer.Instance.GetPlayerComponent<PlayerHandsController>();
+            _toolManager = ServiceLocator.Resolve<ToolManager>();
             base.Start();
         }
 
@@ -83,7 +86,7 @@ namespace Gameplay.Tools.Implementation
             if (!_isFinding)
                 return;
 
-            Ray ray = _cameraService.MainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray ray = GetAimRay();
 
             if (!_found)
             {
@@ -91,7 +94,7 @@ namespace Gameplay.Tools.Implementation
                 return;
             }
 
-            if (_currentHit.collider.Raycast(ray, out var stickHit, 100f))
+            if (_currentHit.collider.Raycast(ray, out var stickHit, AimMaxDistance))
             {
                 _currentHit = stickHit;
                 Use(ray, true, Time.deltaTime);
@@ -133,6 +136,24 @@ namespace Gameplay.Tools.Implementation
             }
         }
 
+        public bool FollowAim(Vector3 point, Vector3 normal, float offset,
+            float moveSpeed, float rotationSpeed, float dt)
+        {
+            if (!_hands || !_toolVisual || !_tip)
+                return false;
+
+            Quaternion targetRotation = Quaternion.LookRotation(-normal, _cameraService.MainCamera.transform.up);
+            Quaternion rotation = Quaternion.Slerp(_toolVisual.rotation, targetRotation,
+                1f - Mathf.Exp(-rotationSpeed * dt));
+            Vector3 tipOffset = rotation * Vector3.Scale(_tipLocalPos, _toolVisual.lossyScale);
+            Vector3 targetPosition = point + normal * offset - tipOffset;
+            Vector3 position = Vector3.Lerp(_toolVisual.position, targetPosition,
+                1f - Mathf.Exp(-moveSpeed * dt));
+
+            _hands.MoveHandSoThat(_toolVisual, position, rotation);
+            return true;
+        }
+
         public void SetRadius(float radius)
         {
             _radius = Mathf.Clamp(radius, _minRadius, _maxRadius);
@@ -143,10 +164,11 @@ namespace Gameplay.Tools.Implementation
             if (!pressed || _currentItem == null || _tip == null)
                 return;
 
-            var tipRay = new Ray(_tip.position - _tip.forward * 0.05f, _tip.forward);
-            if (!_currentHit.collider.Raycast(tipRay, out var paintHit, 0.2f))
+            if (!_currentHit.collider ||
+                !_currentHit.collider.Raycast(ray, out var paintHit, AimMaxDistance))
                 return;
 
+//            Debug.Log(paintHit.collider.name);
             OnSurfaceHit(_currentItem, paintHit, dt);
         }
 
@@ -168,6 +190,23 @@ namespace Gameplay.Tools.Implementation
         #endregion
 
         #region Target lock
+
+        private InspectionPlacement AimPlacement =>
+            _toolManager != null ? _toolManager.CurrentToolPlacement as InspectionPlacement : null;
+
+        private float AimMaxDistance => AimPlacement != null ? AimPlacement.AimMaxDistance : 100f;
+
+        private Ray GetAimRay()
+        {
+            var placement = AimPlacement;
+            if (placement != null)
+                return placement.GetAimRay();
+
+            var camera = _cameraService.MainCamera;
+            return Mouse.current != null
+                ? camera.ScreenPointToRay(Mouse.current.position.ReadValue())
+                : camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        }
 
         private void TryLockOn(Ray ray)
         {
@@ -193,7 +232,7 @@ namespace Gameplay.Tools.Implementation
             best = default;
             item = null;
 
-            int n = Physics.RaycastNonAlloc(ray, _hits, 100f, _paintLayer, QueryTriggerInteraction.Ignore);
+            int n = Physics.RaycastNonAlloc(ray, _hits, AimMaxDistance, _paintLayer, QueryTriggerInteraction.Ignore);
             float bestDist = float.MaxValue;
 
             for (int i = 0; i < n; i++)
@@ -225,10 +264,10 @@ namespace Gameplay.Tools.Implementation
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            if (!_rayStartPoint) return;
+            if (!_cameraService) return;
             Gizmos.color = new Color(1f, 0f, 0.73f);
-            Vector3 start = _rayStartPoint.position;
-            Gizmos.DrawLine(start, start + _rayStartPoint.forward * 100f);
+            Ray ray = GetAimRay();
+            Gizmos.DrawRay(ray.origin, ray.direction * AimMaxDistance);
         }
 #endif
     }

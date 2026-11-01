@@ -54,9 +54,9 @@ namespace Player
             _toolManager.ToolChanged -= OnToolChanged;
         }
 
-        private void OnToolChanged(BaseTool prevTool, BaseTool newTool)
+        private void OnToolChanged(BaseTool newTool)
         {
-            if(newTool.ToolData.ToolType == ToolType.Empty)
+            if (!newTool || newTool.ToolData.ToolType == ToolType.Empty)
                 OpenHands();
             else
                 CloseHands();
@@ -105,6 +105,7 @@ namespace Player
             Vector3 posOffset = inv * (attached.position - _rightHand.position);
 
             Quaternion handRot = worldRot * Quaternion.Inverse(rotOffset);
+            
             _rightHand.SetPositionAndRotation(worldPos - handRot * posOffset, handRot);
         }
 

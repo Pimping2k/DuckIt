@@ -101,34 +101,44 @@ namespace Data
                 .Append(item.DOMove(targetPoint.position, 0.3f))
                 .Append(item.DORotateQuaternion(targetPoint.rotation, 0.1f));
         }
-        
-        public static Sequence SnapTool(Transform tool, Transform targetPoint, float duration = 0.4f)
+
+        public static Sequence DropBoxFromPipe(
+            Transform box,
+            Transform[] pipePoints,
+            Transform target,
+            float startScale = 0.3f,
+            float pipeDuration = 0.8f,
+            float fallDuration = 0.45f,
+            bool alignToPath = true,
+            Action onLanded = null)
         {
-            tool.DOKill();
-            tool.SetParent(targetPoint, true);
+            var baseScale = box.localScale;
 
-            Quaternion tilt = targetPoint.rotation * Quaternion.Euler(-12f, 8f, 5f);
-            float moveDuration = duration * 0.8f;
+            var path = new Vector3[pipePoints.Length];
+            for (int i = 0; i < pipePoints.Length; i++)
+                path[i] = pipePoints[i].position;
 
-            return DOTween.Sequence()
-                .SetTarget(tool)
-                .SetLink(tool.gameObject)
-                .Append(
-                    tool.DOMove(targetPoint.position, moveDuration)
-                        .SetEase(Ease.OutCubic)
-                )
-                .Join(
-                    tool.DORotateQuaternion(tilt, moveDuration)
-                        .SetEase(Ease.OutSine)
-                )
-                .Append(
-                    tool.DORotateQuaternion(
-                        targetPoint.rotation,
-                        duration * 0.2f
-                    ).SetEase(Ease.OutSine)
-                );
+            box.SetParent(null);
+            box.position = path[0];
+            box.localScale = baseScale * startScale;
+
+            var pathTween = box.DOPath(path, pipeDuration, PathType.CatmullRom)
+                .SetEase(Ease.Linear);
+            if (alignToPath)
+                pathTween.SetLookAt(0.01f);
+
+            var seq = DOTween.Sequence().SetTarget(box).SetLink(box.gameObject)
+                .Append(pathTween)
+
+                .Append(box.DOMove(target.position, fallDuration).SetEase(Ease.InQuad))
+                .Join(box.DOScale(baseScale * 1.1f, fallDuration).SetEase(Ease.OutQuad))
+                .Join(box.DORotateQuaternion(target.rotation, fallDuration).SetEase(Ease.OutSine))
+
+                .Append(box.DOScale(baseScale, 0.15f).SetEase(Ease.OutBack))
+                .AppendCallback(() => onLanded?.Invoke());
+
+            return seq;
         }
-        
         public static class RestorableItems
         {
             public static Sequence PopItemFromBox(

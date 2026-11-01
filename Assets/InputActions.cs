@@ -1180,6 +1180,16 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""MoveTool"",
+                    ""type"": ""Value"",
+                    ""id"": ""bc01927d-70e7-46d5-bdb2-1c98b4d23cfb"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -1268,6 +1278,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ChangeSize"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4c436061-71b2-4003-a5f4-192ac4708f10"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveTool"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1420,6 +1441,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Cleaning_LockRotate = m_Cleaning.FindAction("LockRotate", throwIfNotFound: true);
         m_Cleaning_LockMovement = m_Cleaning.FindAction("LockMovement", throwIfNotFound: true);
         m_Cleaning_ChangeSize = m_Cleaning.FindAction("ChangeSize", throwIfNotFound: true);
+        m_Cleaning_MoveTool = m_Cleaning.FindAction("MoveTool", throwIfNotFound: true);
         // General
         m_General = asset.FindActionMap("General", throwIfNotFound: true);
         m_General_JumpRight = m_General.FindAction("JumpRight", throwIfNotFound: true);
@@ -1894,6 +1916,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Cleaning_LockRotate;
     private readonly InputAction m_Cleaning_LockMovement;
     private readonly InputAction m_Cleaning_ChangeSize;
+    private readonly InputAction m_Cleaning_MoveTool;
     /// <summary>
     /// Provides access to input actions defined in input action map "Cleaning".
     /// </summary>
@@ -1937,6 +1960,10 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Cleaning/ChangeSize".
         /// </summary>
         public InputAction @ChangeSize => m_Wrapper.m_Cleaning_ChangeSize;
+        /// <summary>
+        /// Provides access to the underlying input action "Cleaning/MoveTool".
+        /// </summary>
+        public InputAction @MoveTool => m_Wrapper.m_Cleaning_MoveTool;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1987,6 +2014,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ChangeSize.started += instance.OnChangeSize;
             @ChangeSize.performed += instance.OnChangeSize;
             @ChangeSize.canceled += instance.OnChangeSize;
+            @MoveTool.started += instance.OnMoveTool;
+            @MoveTool.performed += instance.OnMoveTool;
+            @MoveTool.canceled += instance.OnMoveTool;
         }
 
         /// <summary>
@@ -2022,6 +2052,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ChangeSize.started -= instance.OnChangeSize;
             @ChangeSize.performed -= instance.OnChangeSize;
             @ChangeSize.canceled -= instance.OnChangeSize;
+            @MoveTool.started -= instance.OnMoveTool;
+            @MoveTool.performed -= instance.OnMoveTool;
+            @MoveTool.canceled -= instance.OnMoveTool;
         }
 
         /// <summary>
@@ -2439,6 +2472,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnChangeSize(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MoveTool" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMoveTool(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "General" which allows adding and removing callbacks.

@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: TD_PaintBrush
   m_EditorClassIdentifier: 
   _id: 3
+  _toolType: 0
   _toolName: Paint Brush
   _prefab: {fileID: 4485295430643294953, guid: afafbbd78273df34d8028be82f163747, type: 3}
